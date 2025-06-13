@@ -1,0 +1,16 @@
+[Unit]
+Description=vpn-finder
+
+[Service]
+Type=idle
+User=root
+Group=root
+
+ExecStart=/usr/bin/python3 /opt/jbond/jbond.py
+ExecStop=/bin/kill -s SIGINT $MAINPID
+TimeoutSec=300
+RestartSec=5
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
