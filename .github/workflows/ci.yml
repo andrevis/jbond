@@ -48,7 +48,7 @@ jobs:
           password: ${{ secrets.JBOND_SSH_PASS }}
           envs: JBOND_BOT_TOKEN
          script: |
-            $JBOND_BOT_TOKEN > /opt/jbond/token
+            "$JBOND_BOT_TOKEN" > /opt/jbond/token
             systemctl stop jbond.service
             systemctl disable jbond.service
             cp -f /opt/jbond/misc/jbond.service /usr/lib/systemd/system/
