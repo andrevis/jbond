@@ -21,6 +21,7 @@ jobs:
           python-version: '3.x'
           # Optional - x64 or x86 architecture, defaults to x64
           architecture: 'x64'
+      - name: Set up Python libs
         run: |
           python3 -m ensurepip
           pip3 install aiogram
