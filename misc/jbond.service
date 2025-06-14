@@ -6,7 +6,7 @@ Type=idle
 User=root
 Group=root
 
-ExecStart=/usr/bin/python3 /opt/jbond/src/jbond.py
+ExecStart=/usr/bin/python3 /opt/jbond/src/main.py
 ExecStop=/bin/kill -s SIGINT $MAINPID
 TimeoutSec=300
 RestartSec=5
