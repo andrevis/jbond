@@ -21,10 +21,9 @@ jobs:
           python-version: '3.x'
           # Optional - x64 or x86 architecture, defaults to x64
           architecture: 'x64'
-      - name: Install Python dependencies
-        uses: py-actions/py-dependency-install@v4
-        with:
-          path: ".github/workflows/python_requirements.txt"
+        run: |
+          python3 -m ensurepip
+          pip3 install aiogram
       - name: Pull code
         uses: appleboy/ssh-action@v1.2.2
         with:
@@ -47,6 +46,7 @@ jobs:
           #private_key: ${{ secrets.JBOND_SSH_PRIVATE_KEY }}
           script: |
             systemctl stop jbond.service
+            systemctl disable jbond.service
             cp -f /opt/jbond/misc/jbond.service /usr/lib/systemd/system/
             systemctl daemon-reload
             systemctl enable jbond.service
