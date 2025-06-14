@@ -9,7 +9,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env: # Or as an environment variable
-      JBOND_BOT_TOKEN: ${{ secrets.JBOND_BOT_TOKEN }}
+      #JBOND_BOT_TOKEN: ${{ secrets.JBOND_BOT_TOKEN }}
       BRANCH: deploy
     steps:
       - name: Checkout code
@@ -47,7 +47,7 @@ jobs:
           password: ${{ secrets.JBOND_SSH_PASS }}
           #private_key: ${{ secrets.JBOND_SSH_PRIVATE_KEY }}
           script: |
-            ${{ secrets.JBOND_BOT_TOKEN }} > /opt/jbond/token
+            export JBOND_BOT_TOKEN=${{ secrets.JBOND_BOT_TOKEN }}
             systemctl stop jbond.service
             systemctl disable jbond.service
             cp -f /opt/jbond/misc/jbond.service /usr/lib/systemd/system/
