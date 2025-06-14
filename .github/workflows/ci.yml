@@ -1,0 +1,54 @@
+name: "CI"
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env: # Or as an environment variable
+      JBOND_BOT_TOKEN: ${{ secrets.JBOND_BOT_TOKEN }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Python
+        # This is the version of the action for setting up Python, not the Python version.
+        uses: actions/setup-python@v5
+        with:
+          # Semantic version range syntax or exact version of a Python version
+          python-version: '3.x'
+          # Optional - x64 or x86 architecture, defaults to x64
+          architecture: 'x64'
+      - name: Install Python dependencies
+        uses: py-actions/py-dependency-install@v4
+        with:
+          path: ".github/workflows/python_requirements.txt"
+      - name: Pull code
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.JBOND_SSH_HOST }}
+          username: ${{ secrets.JBOND_SSH_USER }}
+          password: ${{ secrets.JBOND_SSH_PASS }}
+          #private_key: ${{ secrets.JBOND_SSH_PRIVATE_KEY }}
+          script: |
+            cd /opt
+            git clone https://github.com/andrevis/jbond.git
+            cd jbond
+            git checkout master
+            git pull origin master
+      - name: Install
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.JBOND_SSH_HOST }}
+          username: ${{ secrets.JBOND_SSH_USER }}
+          password: ${{ secrets.JBOND_SSH_PASS }}
+          #private_key: ${{ secrets.JBOND_SSH_PRIVATE_KEY }}
+          script: |
+            systemctl stop jbond.service
+            cp -f /opt/jbond/misc/jbond.service /usr/lib/systemd/system/
+            systemctl daemon-reload
+            systemctl enable jbond.service
+            cp -f /opt/jbond/misc/jbond_logrotate /etc/logrotate.d/
+            systemctl restart crond

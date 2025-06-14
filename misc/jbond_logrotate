@@ -1,0 +1,20 @@
+/opt/jbond/jbond.log
+{
+    su root root
+    rotate 9
+    maxsize 100M
+    size 10M
+    minsize 10M
+    missingok
+    notifempty
+    nomail
+    nodateext
+    nosharedscripts
+    daily
+    compress
+    nocreate
+    postrotate
+        systemctl reload jbond.service
+        exit 0
+    endscript
+}
