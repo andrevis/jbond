@@ -29,7 +29,7 @@ jobs:
         uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.JBOND_SSH_HOST }}
-          user: ${{ secrets.JBOND_SSH_USER }}
+          username: ${{ secrets.JBOND_SSH_USER }}
           password: ${{ secrets.JBOND_SSH_PASS }}
           #private_key: ${{ secrets.JBOND_SSH_PRIVATE_KEY }}
           command: |
@@ -39,10 +39,10 @@ jobs:
             git checkout master;
             git pull origin master;
       - name: Install
-        uses: D3rHase/ssh-command-action@v0.2.2
+        uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.JBOND_SSH_HOST }}
-          user: ${{ secrets.JBOND_SSH_USER }}
+          username: ${{ secrets.JBOND_SSH_USER }}
           password: ${{ secrets.JBOND_SSH_PASS }}
           #private_key: ${{ secrets.JBOND_SSH_PRIVATE_KEY }}
           command: |
