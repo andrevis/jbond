@@ -32,12 +32,12 @@ jobs:
           username: ${{ secrets.JBOND_SSH_USER }}
           password: ${{ secrets.JBOND_SSH_PASS }}
           #private_key: ${{ secrets.JBOND_SSH_PRIVATE_KEY }}
-          command: |
-            cd /opt;
-            git clone https://github.com/andrevis/jbond.git;
-            cd jbond;
-            git checkout master;
-            git pull origin master;
+          script: |
+            cd /opt
+            git clone https://github.com/andrevis/jbond.git
+            cd jbond
+            git checkout master
+            git pull origin master
       - name: Install
         uses: appleboy/ssh-action@v1.2.2
         with:
@@ -45,10 +45,10 @@ jobs:
           username: ${{ secrets.JBOND_SSH_USER }}
           password: ${{ secrets.JBOND_SSH_PASS }}
           #private_key: ${{ secrets.JBOND_SSH_PRIVATE_KEY }}
-          command: |
-            systemctl stop jbond.service;
-            cp -f /opt/jbond/misc/jbond.service /usr/lib/systemd/system/;
-            systemctl daemon-reload;
-            systemctl enable jbond.service;
-            cp -f /opt/jbond/misc/jbond_logrotate /etc/logrotate.d/;
-            systemctl restart crond;
+          script: |
+            systemctl stop jbond.service
+            cp -f /opt/jbond/misc/jbond.service /usr/lib/systemd/system/
+            systemctl daemon-reload
+            systemctl enable jbond.service
+            cp -f /opt/jbond/misc/jbond_logrotate /etc/logrotate.d/
+            systemctl restart crond
