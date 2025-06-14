@@ -41,13 +41,14 @@ jobs:
             git pull origin $BRANCH
       - name: Install
         uses: appleboy/ssh-action@v1.2.2
+        env:
+          JBOND_BOT_TOKEN: ${{ secrets.JBOND_BOT_TOKEN }}
         with:
           host: ${{ secrets.JBOND_SSH_HOST }}
           username: ${{ secrets.JBOND_SSH_USER }}
           password: ${{ secrets.JBOND_SSH_PASS }}
           #private_key: ${{ secrets.JBOND_SSH_PRIVATE_KEY }}
           script: |
-            export JBOND_BOT_TOKEN=${{ secrets.JBOND_BOT_TOKEN }}
             systemctl stop jbond.service
             systemctl disable jbond.service
             cp -f /opt/jbond/misc/jbond.service /usr/lib/systemd/system/
