@@ -23,7 +23,8 @@ jobs:
           architecture: 'x64'
       - name: Install Python dependencies
         uses: py-actions/py-dependency-install@v4
-          path: '.github/workflows/python_requirements.txt'
+        with:
+          path: ".github/workflows/python_requirements.txt"
       - name: Pull code
         uses: D3rHase/ssh-command-action@v0.2.2
         with:
