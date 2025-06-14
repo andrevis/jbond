@@ -50,6 +50,7 @@ jobs:
           envs: JBOND_BOT_TOKEN
           #private_key: ${{ secrets.JBOND_SSH_PRIVATE_KEY }}
           script: |
+            export JBOND_BOT_TOKEN=$JBOND_BOT_TOKEN
             echo "JBOND_BOT_TOKEN=$JBOND_BOT_TOKEN"
             systemctl stop jbond.service
             systemctl disable jbond.service
