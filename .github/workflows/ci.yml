@@ -30,7 +30,7 @@ jobs:
         with:
           host: ${{ secrets.JBOND_SSH_HOST }}
           user: ${{ secrets.JBOND_SSH_USER }}
-          password: ${{ secrets.JBOND_SSH_PASS }}
+          private_key: ${{ secrets.JBOND_SSH_PRIVATE_KEY }}
           command: |
             cd /opt;
             git clone https://github.com/andrevis/jbond.git;
@@ -42,7 +42,7 @@ jobs:
         with:
           host: ${{ secrets.JBOND_SSH_HOST }}
           user: ${{ secrets.JBOND_SSH_USER }}
-          password: ${{ secrets.JBOND_SSH_PASS }}
+          private_key: ${{ secrets.JBOND_SSH_PRIVATE_KEY }}
           command: |
             systemctl stop jbond.service;
             cp -f /opt/jbond/misc/jbond.service /usr/lib/systemd/system/;
