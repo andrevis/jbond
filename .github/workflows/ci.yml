@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env: # Or as an environment variable
       JBOND_BOT_TOKEN: ${{ secrets.JBOND_BOT_TOKEN }}
+      BRANCH: deploy
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -36,8 +37,8 @@ jobs:
             cd /opt
             git clone https://github.com/andrevis/jbond.git
             cd jbond
-            git checkout master
-            git pull origin master
+            git checkout ${{BRANCH}}
+            git pull origin ${{BRANCH}}
       - name: Install
         uses: appleboy/ssh-action@v1.2.2
         with:
