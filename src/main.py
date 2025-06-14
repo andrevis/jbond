@@ -1,6 +1,10 @@
+import os
 import asyncio
 from jbond import bot, dispatcher #,scheduler
 from handlers.start import start_router
+from logger import *
+
+logger = logging.getLogger("Main")
 
 
 async def main():
@@ -11,4 +15,5 @@ async def main():
     await dispatcher.start_polling(bot)
 
 if __name__ == "__main__":
+    logger.info(f"JBOND_BOT_TOKEN={os.environ.get('JBOND_BOT_TOKEN')}")
     asyncio.run(main())
