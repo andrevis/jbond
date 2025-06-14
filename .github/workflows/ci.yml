@@ -37,8 +37,8 @@ jobs:
             cd /opt
             git clone https://github.com/andrevis/jbond.git
             cd jbond
-            git checkout ${{BRANCH}}
-            git pull origin ${{BRANCH}}
+            git checkout $BRANCH
+            git pull origin $BRANCH
       - name: Install
         uses: appleboy/ssh-action@v1.2.2
         with:
