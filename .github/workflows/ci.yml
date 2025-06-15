@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env: # Or as an environment variable
       JBOND_BOT_TOKEN: ${{ secrets.JBOND_BOT_TOKEN }}
+      JBOND_SSH_PRIVATE_KEY: ${{ secrets.JBOND_SSH_PRIVATE_KEY }}
       BRANCH: deploy
       DIRECTORY: /opt/jbond
     steps:
@@ -32,7 +33,7 @@ jobs:
         # <https://stackoverflow.com/a/70447517>
         run: |
           install -m 600 -D /dev/null ~/.ssh/id_rsa
-          echo "${{ secrets.JBOND_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "$JBOND_SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           cat ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.JBOND_SSH_HOST }} > ~/.ssh/known_hosts
       - name: clone
