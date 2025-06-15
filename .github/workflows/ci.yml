@@ -37,7 +37,7 @@ jobs:
           cat ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.JBOND_SSH_HOST }} > ~/.ssh/known_hosts
       - name: clone
-        run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "git clone https://github.com/andrevis/jbond.git $DIRECTORY"
+        run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "rm -rf $DIRECTORY && git clone https://github.com/andrevis/jbond.git $DIRECTORY"
       - name: checkout-pull
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "cd $DIRECTORY && git checkout $BRANCH && git pull origin $BRANCH"
       - name: stop service
