@@ -1,6 +1,10 @@
+import os
 import asyncio
 from jbond import bot, dispatcher #,scheduler
 from handlers.start import start_router
+from logger import *
+
+logger = logging.getLogger("Main")
 
 
 async def main():
