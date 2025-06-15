@@ -15,5 +15,4 @@ async def main():
     await dispatcher.start_polling(bot)
 
 if __name__ == "__main__":
-    logger.info(f"JBOND_BOT_TOKEN={os.environ.get('JBOND_BOT_TOKEN')}")
     asyncio.run(main())

@@ -14,7 +14,9 @@ from aiogram.fsm.storage.memory import MemoryStorage
 # signal.signal(signal.SIGINT, signal_handler)
 
 
-bot = Bot(token=os.environ.get('JBOND_BOT_TOKEN'))
+with open("/opt/jbond/token", 'r') as token:
+    bot = Bot(token=token.readline().strip())
+
 dispatcher = Dispatcher(storage=MemoryStorage())
 
 
