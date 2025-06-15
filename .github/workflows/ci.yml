@@ -33,6 +33,7 @@ jobs:
         run: |
           install -m 600 -D /dev/null ~/.ssh/id_rsa
           echo "${{ secrets.JBOND_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          cat ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.JBOND_SSH_HOST }} > ~/.ssh/known_hosts
       - name: clone
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "git clone https://github.com/andrevis/jbond.git $DIRECTORY"
