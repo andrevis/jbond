@@ -48,8 +48,21 @@ jobs:
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "systemctl daemon-reload && systemctl enable jbond.service && systemctl restart jbond.service"
       - name: restart cron
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "cp -f $DIRECTORY/misc/jbond_logrotate /etc/logrotate.d/ && systemctl restart crond"
-      - name: set token
-        run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "export JBOND_BOT_TOKEN=$JBOND_BOT_TOKEN"
+
+      - name: Pass environment
+        uses: appleboy/ssh-action@v1
+        env:
+          JBOND_BOT_TOKEN: "$JBOND_BOT_TOKEN"
+        with:
+          host: ${{ secrets.JBOND_SSH_HOST }}
+          username: ${{ secrets.JBOND_SSH_USER }}
+          key: ${{ secrets.JBOND_SSH_PRIVATE_KEY }}
+          envs: JBOND_BOT_TOKEN
+          script: |
+            echo "JBOND_BOT_TOKEN=$JBOND_BOT_TOKEN"
+
+      # - name: set token
+      #   run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "export JBOND_BOT_TOKEN=$JBOND_BOT_TOKEN"
       - name: cleanup keys
         if: always()
         run: rm -rf ~/.ssh/id_rsa
