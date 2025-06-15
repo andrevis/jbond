@@ -9,8 +9,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env: # Or as an environment variable
-      #JBOND_BOT_TOKEN: ${{ secrets.JBOND_BOT_TOKEN }}
+      JBOND_BOT_TOKEN: ${{ secrets.JBOND_BOT_TOKEN }}
       BRANCH: deploy
+      DIRECTORY: /opt/jbond
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -26,33 +27,56 @@ jobs:
         run: |
           python3 -m ensurepip
           pip3 install aiogram
-      - name: Pull code
-        uses: appleboy/ssh-action@v1.2.2
-        with:
-          host: ${{ secrets.JBOND_SSH_HOST }}
-          username: ${{ secrets.JBOND_SSH_USER }}
-          password: ${{ secrets.JBOND_SSH_PASS }}
-          script: |
-            cd /opt
-            git clone https://github.com/andrevis/jbond.git
-            cd jbond
-            git checkout $BRANCH
-            git pull origin $BRANCH
-      - name: Install
-        uses: appleboy/ssh-action@v1.2.2
-        env:
-          JBOND_BOT_TOKEN: ${{ secrets.JBOND_BOT_TOKEN }}
-        with:
-          host: ${{ secrets.JBOND_SSH_HOST }}
-          username: ${{ secrets.JBOND_SSH_USER }}
-          password: ${{ secrets.JBOND_SSH_PASS }}
-          envs: JBOND_BOT_TOKEN
-          script: |
-            "$JBOND_BOT_TOKEN" > /opt/jbond/token
-            systemctl stop jbond.service
-            systemctl disable jbond.service
-            cp -f /opt/jbond/misc/jbond.service /usr/lib/systemd/system/
-            systemctl daemon-reload
-            systemctl enable jbond.service
-            cp -f /opt/jbond/misc/jbond_logrotate /etc/logrotate.d/
-            systemctl restart crond
+      - name: install ssh keys
+        # check this thread to understand why its needed:
+        # <https://stackoverflow.com/a/70447517>
+        run: |
+          install -m 600 -D /dev/null ~/.ssh/id_rsa
+          echo "${{ secrets.JBOND_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.JBOND_SSH_HOST }} > ~/.ssh/known_hosts
+      - name: clone
+        run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "git clone https://github.com/andrevis/jbond.git $DIRECTORY"
+      - name: checkout-pull
+        run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "cd $DIRECTORY && git checkout $BRANCH && git pull origin $BRANCH"
+      - name: stop service
+        run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "systemctl stop jbond.service && systemctl disable jbond.service"
+      - name: replace service
+        run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "cp -f $DIRECTORY/misc/jbond.service /usr/lib/systemd/system/"
+      - name: replace service
+        run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "systemctl daemon-reload && systemctl enable jbond.service && systemctl restart jbond.service"
+      - name: restart cron
+        run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "cp -f $DIRECTORY/misc/jbond_logrotate /etc/logrotate.d/ && systemctl restart crond"
+      - name: cleanup keys
+        if: always()
+        run: rm -rf ~/.ssh/id_rsa
+
+      # - name: Pull code
+      #   uses: appleboy/ssh-action@v1.2.2
+      #   with:
+      #     host: ${{ secrets.JBOND_SSH_HOST }}
+      #     username: ${{ secrets.JBOND_SSH_USER }}
+      #     password: ${{ secrets.JBOND_SSH_PASS }}
+      #     script: |
+      #       cd /opt
+      #       git clone https://github.com/andrevis/jbond.git
+      #       cd jbond
+      #       git checkout $BRANCH
+      #       git pull origin $BRANCH
+      # - name: Install
+      #   uses: appleboy/ssh-action@v1.2.2
+      #   env:
+      #     JBOND_BOT_TOKEN: ${{ secrets.JBOND_BOT_TOKEN }}
+      #   with:
+      #     host: ${{ secrets.JBOND_SSH_HOST }}
+      #     username: ${{ secrets.JBOND_SSH_USER }}
+      #     password: ${{ secrets.JBOND_SSH_PASS }}
+      #     envs: JBOND_BOT_TOKEN
+      #     script: |
+      #       "$JBOND_BOT_TOKEN" > /opt/jbond/token
+      #       systemctl stop jbond.service
+      #       systemctl disable jbond.service
+      #       cp -f /opt/jbond/misc/jbond.service /usr/lib/systemd/system/
+      #       systemctl daemon-reload
+      #       systemctl enable jbond.service
+      #       cp -f /opt/jbond/misc/jbond_logrotate /etc/logrotate.d/
+      #       systemctl restart crond
