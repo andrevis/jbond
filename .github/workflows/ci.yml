@@ -41,14 +41,14 @@ jobs:
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "cd $DIRECTORY && git checkout $BRANCH && git pull origin $BRANCH"
       - name: stop service
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "systemctl stop jbond.service && systemctl disable jbond.service"
-      - name: replace service
+      - name: set token
+        run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo ${{ secrets.JBOND_BOT_TOKEN }} > $DIRECTORY/token"
+      - name: setup service
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "cp -f $DIRECTORY/misc/jbond.service /usr/lib/systemd/system/"
-      - name: replace service
+      - name: enable service
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "systemctl daemon-reload && systemctl enable jbond.service && systemctl restart jbond.service"
       - name: setup logrotate
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "cp -f $DIRECTORY/misc/jbond_logrotate /etc/logrotate.d/ && systemctl restart crond"
-      - name: set token
-        run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo ${{ secrets.JBOND_BOT_TOKEN }} > $DIRECTORY/token"
       - name: cleanup keys
         if: always()
         run: rm -rf ~/.ssh/id_rsa
