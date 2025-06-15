@@ -11,6 +11,7 @@ jobs:
     env: # Or as an environment variable
       BRANCH: deploy
       DIRECTORY: /opt/jbond
+      JBOND_BOT_TOKEN: ${{ secrets.JBOND_BOT_TOKEN }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -45,7 +46,7 @@ jobs:
       - name: setup service
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "cp -f $DIRECTORY/misc/jbond.service /usr/lib/systemd/system/"
       - name: enable service
-        run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "JBOND_BOT_TOKEN=${{ secrets.JBOND_BOT_TOKEN }} && systemctl daemon-reload && systemctl enable jbond.service && systemctl restart jbond.service"
+        run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "JBOND_BOT_TOKEN=$JBOND_BOT_TOKEN && systemctl daemon-reload && systemctl enable jbond.service && systemctl restart jbond.service"
       - name: setup logrotate
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "cp -f $DIRECTORY/misc/jbond_logrotate /etc/logrotate.d/ && systemctl restart crond"
       - name: cleanup keys
