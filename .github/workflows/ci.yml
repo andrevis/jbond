@@ -34,12 +34,16 @@ jobs:
           echo "${{ secrets.JBOND_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           cat ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.JBOND_SSH_HOST }} > ~/.ssh/known_hosts
+      - name: open port
+        run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "firewall-cmd --add-port=80/tcp"
       - name: clone
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "rm -rf $DIRECTORY && git clone https://github.com/andrevis/jbond.git $DIRECTORY"
       - name: checkout-pull
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "cd $DIRECTORY && git checkout $BRANCH && git pull origin $BRANCH"
       - name: stop service
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "systemctl stop jbond.service && systemctl disable jbond.service"
+      - name: gen ssl keys
+        run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "openssl req -new -nodes -batch -x509 -newkey rsa:2048 -keyout $DIRECTORY/key.pem -out $DIRECTORY/cert.pem -days 365 -subj '/C=RU/CN=185.68.21.112'"
       - name: set token
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo ${{ secrets.JBOND_BOT_TOKEN }} > $DIRECTORY/token"
       - name: setup service
