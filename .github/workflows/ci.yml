@@ -11,7 +11,6 @@ jobs:
     env: # Or as an environment variable
       BRANCH: server
       DIRECTORY: /opt/jbond
-      TOML_CFG: $DIRECTORY/jbond.toml
       ADDR: ${{ secrets.JBOND_SSH_DOMAIN }}
       PORT: 8080
       CRON_CERT_RENEW_JOB: '30 4 * * * /usr/bin/certbot renew --quiet'
@@ -61,12 +60,12 @@ jobs:
 
       - name: gen config
         run: |
-          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo '[server]' > $TOML_CFG"
-          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo 'address = $ADDR' >> $TOML_CFG"
-          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo 'port = $PORT' >> $TOML_CFG"
-          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo '' >> $TOML_CFG"
-          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo '[bot]' >> $TOML_CFG"
-          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo 'token = $${{ secrets.JBOND_BOT_TOKEN }}' >> $TOML_CFG"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo '[server]' > $DIRECTORY/jbond.toml"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo 'address = $ADDR' >> $DIRECTORY/jbond.toml"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo 'port = $PORT' >> $DIRECTORY/jbond.toml"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo '' >> $DIRECTORY/jbond.toml"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo '[bot]' >> $DIRECTORY/jbond.toml"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo 'token = $${{ secrets.JBOND_BOT_TOKEN }}' >> $DIRECTORY/jbond.toml"
 
       # - name: set bot token
       #   run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo ${{ secrets.JBOND_BOT_TOKEN }} > $DIRECTORY/token"
