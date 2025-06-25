@@ -6,7 +6,6 @@ import mimetypes
 
 logger = logging.getLogger("Http")
 
-
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         logger.info(f'Incoming POST request: {self.path}:\n{self.request}')
@@ -18,7 +17,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         logger.info(f'Incoming GET request: {self.path}')
 
-        if self.path == '/':
+        if self.path == '/' or len(self.path) == 0:
             self.path = '/index.html'
 
         try:
@@ -42,12 +41,11 @@ class HttpServer(Thread):
     __httpd__ = None
 
     def __init__(self, port):
-        super().__init__()
-        self.__httpd__ = HTTPServer(('', port), SimpleHTTPRequestHandler)
-        self.__httpd__.name = 'HttpServer'
+        super().__init__(name = 'HttpServer')
+        self.__httpd__ = HTTPServer(('0.0.0.0', port), SimpleHTTPRequestHandler)
         self.__httpd__.socket = ssl.wrap_socket(self.__httpd__.socket,
-            keyfile="/opt/jbond/key.pem",
-            certfile='/opt/jbond/cert.pem', server_side=True)
+            keyfile = '/etc/letsencrypt/live/jbond-app.ru/privkey.pem',
+            certfile = '/etc/letsencrypt/live/jbond-app.ru/cert.pem', server_side = True)
 
         logger.info(f'Starting httpd server on port {port}...')
 

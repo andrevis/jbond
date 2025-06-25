@@ -1,13 +1,8 @@
-# import signal
-import os
-# import sys
 from logger import *
-from environment import *
+from config import config
 
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 
-TOKEN = open('/opt/jbond/token', 'r').readline().strip()
-
-bot = Bot(token=TOKEN)
-dispatcher = Dispatcher(storage=MemoryStorage())
+bot = Bot(token = config['bot']['token'])
+dispatcher = Dispatcher(storage = MemoryStorage())
