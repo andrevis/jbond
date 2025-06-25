@@ -3,7 +3,7 @@ on:
   push:
     branches: ["master"]
   pull_request:
-    branches: ["master"]
+    branches: ["server"]
 
 jobs:
   deploy:
@@ -59,12 +59,12 @@ jobs:
 
       - name: gen config
         run: |
-          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo '[server]\n' > $DIRECTORY/jbond.toml"
-          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo 'address = $ADDR\n' >> $DIRECTORY/jbond.toml"
-          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo 'port = $PORT\n' >> $DIRECTORY/jbond.toml"
-          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo '\n[bot]\n' > $DIRECTORY/jbond.toml"
-          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo 'token = $${{ secrets.JBOND_BOT_TOKEN }}\n' >> $DIRECTORY/jbond.toml"
-          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo '\n' >> $DIRECTORY/jbond.toml"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo [server]$'\n' > $DIRECTORY/jbond.toml"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo address = $ADDR$'\n' >> $DIRECTORY/jbond.toml"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo port = $PORT$'\n' >> $DIRECTORY/jbond.toml"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo $'\n'[bot]$'\n' > $DIRECTORY/jbond.toml"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo token = $${{ secrets.JBOND_BOT_TOKEN }}$'\n' >> $DIRECTORY/jbond.toml"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo $'\n' >> $DIRECTORY/jbond.toml"
 
       # - name: set bot token
       #   run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo ${{ secrets.JBOND_BOT_TOKEN }} > $DIRECTORY/token"
