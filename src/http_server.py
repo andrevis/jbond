@@ -8,14 +8,14 @@ logger = logging.getLogger("Http")
 
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
-        logger.info(f'Incoming POST request: {self.path}:\n{self.request}')
+        logger.info(f'Incoming POST {self.path} from {self.client_address}')
 
         self.send_response(200)
         self.send_header('Content-Length', 0)
         self.end_headers()
 
     def do_GET(self):
-        logger.info(f'Incoming GET request: {self.path}')
+        logger.info(f'Incoming GET {self.path} from {self.client_address}')
 
         if self.path == '/' or len(self.path) == 0:
             self.path = '/index.html'

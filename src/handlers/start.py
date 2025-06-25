@@ -13,10 +13,12 @@ logger = logging.getLogger("Start")
 async def cmd_start(message: Message):
     logger.info(f'CommandStart {message.from_user.full_name}')
 
-    webAppInfo = WebAppInfo(url = f"https://{config["server"]["address"]}:{config["server"]["port"]}/index.html")
+    address = config["server"]["address"]
+    port = config["server"]["port"]
+    webAppInfo = WebAppInfo(url = f"https://{address}:{port}/index.html")
     builder = ReplyKeyboardBuilder()
     builder.add(KeyboardButton(text = 'Открыть фильтры', web_app = webAppInfo))
-    await message.answer(reply_markup = builder.as_markup())
+    await message.answer(text = 'Хуильтры', reply_markup = builder.as_markup())
 
 # @start_router.message(Command('filters'))
 # async def cmd_filters(message: Message):
