@@ -30,7 +30,8 @@ jobs:
       - name: Set up Python libs
         run: |
           python3 -m ensurepip
-          pip3 install aiogram tomli
+          python3 -m venv /opt/certbot/
+          pip3 install aiogram tomli certbot
       - name: install ssh keys
         # check this thread to understand why its needed:
         # <https://stackoverflow.com/a/70447517>
