@@ -11,6 +11,10 @@ jobs:
     env: # Or as an environment variable
       BRANCH: master
       DIRECTORY: /opt/jbond
+      ADDR: ${{ secrets.JBOND_SSH_DOMAIN }}
+      PORT: 8080
+      CRON_CERT_RENEW_JOB: '30 4 * * * /usr/bin/certbot renew --quiet'
+      CRON_CERT_RENEW_FILE: certbot.renew.cron
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -25,7 +29,8 @@ jobs:
       - name: Set up Python libs
         run: |
           python3 -m ensurepip
-          pip3 install aiogram
+          python3 -m venv /opt/certbot/
+          pip3 install aiogram tomli certbot
       - name: install ssh keys
         # check this thread to understand why its needed:
         # <https://stackoverflow.com/a/70447517>
@@ -34,14 +39,36 @@ jobs:
           echo "${{ secrets.JBOND_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           cat ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.JBOND_SSH_HOST }} > ~/.ssh/known_hosts
-      - name: clone
+      - name: open port
+        run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "firewall-cmd --zone=public --add-port=$PORT/tcp --permanent"
+      - name: clone repo
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "rm -rf $DIRECTORY && git clone https://github.com/andrevis/jbond.git $DIRECTORY"
       - name: checkout-pull
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "cd $DIRECTORY && git checkout $BRANCH && git pull origin $BRANCH"
       - name: stop service
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "systemctl stop jbond.service && systemctl disable jbond.service"
-      - name: set token
-        run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo ${{ secrets.JBOND_BOT_TOKEN }} > $DIRECTORY/token"
+      # - name: gen self-signed ssl keys
+      #   run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "openssl req -new -nodes -batch -x509 -newkey rsa:2048 -keyout $DIRECTORY/key.pem -out $DIRECTORY/cert.pem -days 365 -subj '/C=RU/CN=185.68.21.112'"
+      - name: gen cert
+        run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "certbot certonly --standalone -n -d $ADDR -d www.$ADDR"
+      - name: Add certbot renew job
+        run: |
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "crontab -l | sed '/certbot renew/d' > $CRON_CERT_RENEW_FILE"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo '$CRON_CERT_RENEW_JOB' >> $CRON_CERT_RENEW_FILE"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "crontab $CRON_CERT_RENEW_FILE"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "rm -f $CRON_CERT_RENEW_FILE"
+
+      - name: gen config
+        run: |
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo '[server]' > $DIRECTORY/jbond.toml"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo 'address = \"$ADDR\"' >> $DIRECTORY/jbond.toml"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo 'port = $PORT' >> $DIRECTORY/jbond.toml"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo '' >> $DIRECTORY/jbond.toml"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo '[bot]' >> $DIRECTORY/jbond.toml"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo 'token = \"$${{ secrets.JBOND_BOT_TOKEN }}\"' >> $DIRECTORY/jbond.toml"
+
+      # - name: set bot token
+      #   run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo ${{ secrets.JBOND_BOT_TOKEN }} > $DIRECTORY/token"
       - name: setup service
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "cp -f $DIRECTORY/misc/jbond.service /usr/lib/systemd/system/"
       - name: enable service

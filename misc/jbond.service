@@ -8,7 +8,7 @@ Group=root
 
 ExecStart=/usr/bin/python3 /opt/jbond/src/main.py
 ExecStop=/bin/kill -s SIGINT $MAINPID
-TimeoutSec=300
+TimeoutSec=30
 RestartSec=5
 Restart=on-failure
 
