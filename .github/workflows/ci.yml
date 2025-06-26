@@ -9,7 +9,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env: # Or as an environment variable
-      BRANCH: master
+      BRANCH: html
       DIRECTORY: /opt/jbond
       ADDR: ${{ secrets.JBOND_SSH_DOMAIN }}
       PORT: 8080
@@ -18,6 +18,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
       - name: Set up Python
         # This is the version of the action for setting up Python, not the Python version.
         uses: actions/setup-python@v5
@@ -26,11 +27,18 @@ jobs:
           python-version: '3.x'
           # Optional - x64 or x86 architecture, defaults to x64
           architecture: 'x64'
+
       - name: Set up Python libs
         run: |
           python3 -m ensurepip
           python3 -m venv /opt/certbot/
           pip3 install aiogram tomli certbot
+
+      - name: Install some html stuff
+        run: |
+          yes | yum install npm
+          npm install nouislider
+
       - name: install ssh keys
         # check this thread to understand why its needed:
         # <https://stackoverflow.com/a/70447517>
@@ -39,6 +47,7 @@ jobs:
           echo "${{ secrets.JBOND_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           cat ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.JBOND_SSH_HOST }} > ~/.ssh/known_hosts
+
       - name: open port
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "firewall-cmd --zone=public --add-port=$PORT/tcp --permanent"
       - name: clone repo
@@ -67,8 +76,6 @@ jobs:
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo '[bot]' >> $DIRECTORY/jbond.toml"
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo 'token = \"${{ secrets.JBOND_BOT_TOKEN }}\"' >> $DIRECTORY/jbond.toml"
 
-      # - name: set bot token
-      #   run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo ${{ secrets.JBOND_BOT_TOKEN }} > $DIRECTORY/token"
       - name: setup service
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "cp -f $DIRECTORY/misc/jbond.service /usr/lib/systemd/system/"
       - name: enable service

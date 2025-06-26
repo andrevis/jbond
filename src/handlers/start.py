@@ -10,24 +10,21 @@ start_router = Router()
 logger = logging.getLogger("Start")
 
 @start_router.message(CommandStart())
-async def cmd_start(message: Message):
-    logger.info(f'CommandStart {message.from_user.full_name}')
-
+async def handle_start(message: Message):
+    logger.info(f'Command /start from {message.from_user.full_name}')
     address = config["server"]["address"]
     port = config["server"]["port"]
-    webAppInfo = WebAppInfo(url = f"https://{address}:{port}/index.html")
+    webAppInfo = WebAppInfo(url = f"https://{address}:{port}")
+    builder = ReplyKeyboardBuilder()
+    builder.add(KeyboardButton(text = 'Открыть фильтры', web_app = webAppInfo))
+    await message.answer(text = 'Поехали', reply_markup = builder.as_markup())
+
+@start_router.message(Command('filters'))
+async def cmd_filters(message: Message):
+    logger.info(f'Command /filters from {message.from_user.full_name}')
+    address = config["server"]["address"]
+    port = config["server"]["port"]
+    webAppInfo = WebAppInfo(url = f"https://{address}:{port}")
     builder = ReplyKeyboardBuilder()
     builder.add(KeyboardButton(text = 'Открыть фильтры', web_app = webAppInfo))
     await message.answer(text = 'Хуильтры', reply_markup = builder.as_markup())
-
-# @start_router.message(Command('filters'))
-# async def cmd_filters(message: Message):
-#     webAppInfo = WebAppInfo(url = f"https://{ADDR}:{PORT}/index.html")
-#     builder = ReplyKeyboardBuilder()
-#     builder.add(KeyboardButton(text = 'Открыть фильтры', web_app = webAppInfo))
-#     await message.answer(reply_markup = builder.as_markup())
-
-# @start_router.message(F.text == '/start_3')
-# async def cmd_start_3(message: Message):
-#     logger.info(f'start_3 {message.from_user.full_name}')
-#     await message.answer('Запуск сообщения по команде /start_3 используя магический фильтр F.text!')
