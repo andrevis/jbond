@@ -52,17 +52,30 @@ jobs:
           cat ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.JBOND_SSH_HOST }} > ~/.ssh/known_hosts
 
+      - name: Start postgresql
+        continue-on-error: true
+        run: |
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "systemctl stop postgresql && systemctl disable postgresql"
+
       - name: Install postgresql
         continue-on-error: true
         run: |
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "yes | yum install postgresql-server"
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "postgresql-setup --initdb --unit postgresql"
+
+      - name: Init postgresql cfg
+        run: |
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "cat $PG_HBA | sed -E 's/^local\s+all\s+postgres.*/# \0/' > $PG_HBA
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo 'local    all    postgres    trust' >> $PG_HBA"
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "cat $PG_HBA | sed -E 's/host\s+$DB_NAME\s+$DB_USER.*/# \0/' > $PG_HBA
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo 'host    $DB_NAME    $DB_USER    password' >> $PG_HBA"
-          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "systemctl enable postgresql"
-          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "systemctl start postgresql"
+
+      - name: Start postgresql
+        run: |
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "systemctl enable postgresql && systemctl start postgresql"
+
+      - name: Create postgresql db
+        run: |
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "psql -U postgres -c 'CREATE USER $db_user PASSWORD $db_pass;'"
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "psql -U postgres -c 'CREATE DATABASE $db_user OWNER=$db_user;'"
 
