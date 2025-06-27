@@ -1,0 +1,125 @@
+body {
+  background-color: #c8c8c8;
+}
+
+button {
+  padding: 17px 40px;
+  border-radius: 50px;
+  cursor: pointer;
+  border: 0;
+  bottom: 20px;
+  background-color: hsl(261deg 80% 48%);
+  box-shadow: rgb(0 0 0 / 5%) 0 0 8px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-size: 15px;
+  color: hsl(0, 0%, 100%);
+  transition: all 0.5s ease;
+  width: 200px;
+}
+
+button:hover {
+  letter-spacing: 3px;
+  background-color: hsl(261deg 80% 48%);
+  color: hsl(0, 0%, 100%);
+  box-shadow: rgb(93 24 220) 0px 7px 29px 0px;
+}
+
+button:active {
+  letter-spacing: 3px;
+  background-color: hsl(261deg 80% 48%);
+  color: hsl(0, 0%, 100%);
+  box-shadow: rgb(93 24 220) 0px 0px 0px 0px;
+  transform: translateY(10px);
+  transition: 100ms;
+}
+
+
+
+/* Блок фильтра */
+.wrapper {
+  border-radius: 10px;
+  padding: 20px 25px 20px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.1);
+  margin-top: 5px;
+  background-color: #f5f5f5;
+}
+
+.block-name {
+  font-family: Tahoma, "Open Sans", Verdana, sans-serif;
+  margin-right: 16px;
+  font-size: 18px;
+  line-height: 40px;
+}
+
+.fields {
+  text-align: center;
+}
+
+.field {
+  display: inline-block;
+}
+
+.separator {
+  display: inline-block;
+  margin: 10px;
+}
+
+.field-left {
+  position: absolute;
+  left: 32px;
+}
+
+.field-right {
+  position: absolute;
+  right: 32px;
+}
+
+input[type='number'] {
+    width: 80px;
+    padding: 7px;
+    text-align: center;
+    border: 1px solid #c8c8c8;
+    border-radius: 5px;
+    font-size: 18px;
+    line-height: 18px;
+    color: #585858;
+}
+
+input[type='text'] {
+  width: 80px;
+  padding: 7px;
+  text-align: center;
+  border: 1px solid #c8c8c8;
+  border-radius: 5px;
+  font-size: 18px;
+  line-height: 18px;
+  color: #585858;
+  margin-bottom: 20px;
+}
+
+input[type='checkbox']{
+  transform: scale(2);
+  margin: 10px 10px;
+}
+
+.slider {
+  height: 10px;
+  margin: 10px 0px 0px;
+}
+
+.single-slider {
+  margin-top: 50px
+}
+
+.slider .noUi-connect {
+  background: #c0392b;
+}
+
+.slider .noUi-handle {
+  height: 24px;
+  width: 24px;
+  top: -5px;
+  right: -12px;
+  border-radius: 12px;
+}

@@ -13,11 +13,16 @@ jobs:
       DIRECTORY: /opt/jbond
       ADDR: ${{ secrets.JBOND_SSH_DOMAIN }}
       PORT: 8080
-      CRON_CERT_RENEW_JOB: '30 4 * * * /usr/bin/certbot renew --quiet'
-      CRON_CERT_RENEW_FILE: certbot.renew.cron
+      CRON_CERT_RENEW_JOB: "30 4 * * * /usr/bin/certbot renew --quiet"
+      CRON_CERT_RENEW_FILE: ~/certbot.renew.cron
+      PG_HBA: /var/lib/pgsql/data/pg_hba.conf
+      DB_NAME: jbond_db
+      DB_USER: jbond
+      DB_PASS: jbond
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
       - name: Set up Python
         # This is the version of the action for setting up Python, not the Python version.
         uses: actions/setup-python@v5
@@ -26,11 +31,18 @@ jobs:
           python-version: '3.x'
           # Optional - x64 or x86 architecture, defaults to x64
           architecture: 'x64'
+
       - name: Set up Python libs
         run: |
           python3 -m ensurepip
           python3 -m venv /opt/certbot/
           pip3 install aiogram tomli certbot
+
+      # - name: Install some html stuff
+      #   run: |
+      #     yes | yum install npm
+      #     npm install toml
+
       - name: install ssh keys
         # check this thread to understand why its needed:
         # <https://stackoverflow.com/a/70447517>
@@ -39,24 +51,55 @@ jobs:
           echo "${{ secrets.JBOND_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           cat ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.JBOND_SSH_HOST }} > ~/.ssh/known_hosts
+
+      - name: Stop postgresql
+        continue-on-error: true
+        run: |
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "systemctl stop postgresql && systemctl disable postgresql"
+
+      - name: Install postgresql
+        continue-on-error: true
+        run: |
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "yes | yum install postgresql-server"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "postgresql-setup --initdb --unit postgresql"
+
+      - name: Init postgresql cfg
+        run: |
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "cp -f $PG_HBA ${PG_HBA}.bkp"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "sed -n -i -E '/local\s+all/d' $PG_HBA"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "sed -n -i '/$DB_NAME/d' $PG_HBA"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo "local    all         postgres    trust" >> $PG_HBA"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo "local    $DB_NAME    $DB_USER    password" >> $PG_HBA"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo "host     $DB_NAME    $DB_USER    127.0.0.1/32    password" >> $PG_HBA"
+
+      - name: Start postgresql
+        run: |
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "systemctl enable postgresql && systemctl start postgresql"
+
+      - name: Create postgresql db
+        continue-on-error: true
+        run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "$DIRECTORY/db/init.sh ${DB_NAME} ${DB_USER} ${DB_PASS}"
+
+      # - name: Create postgresql db
+      #   run: |
+      #     ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "psql -U postgres -c "CREATE USER ${DB_USER} PASSWORD \'${DB_PASS}\';""
+      #     ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "psql -U postgres -c "CREATE DATABASE ${DB_NAME} OWNER=${DB_USER};""
+
       - name: open port
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "firewall-cmd --zone=public --add-port=$PORT/tcp --permanent"
       - name: clone repo
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "rm -rf $DIRECTORY && git clone https://github.com/andrevis/jbond.git $DIRECTORY"
       - name: checkout-pull
-        run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "cd $DIRECTORY && git checkout $BRANCH && git pull origin $BRANCH"
+        run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "cd $DIRECTORY && git checkout $BRANCH -- && git pull origin $BRANCH"
       - name: stop service
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "systemctl stop jbond.service && systemctl disable jbond.service"
-      # - name: gen self-signed ssl keys
-      #   run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "openssl req -new -nodes -batch -x509 -newkey rsa:2048 -keyout $DIRECTORY/key.pem -out $DIRECTORY/cert.pem -days 365 -subj '/C=RU/CN=185.68.21.112'"
       - name: gen cert
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "certbot certonly --standalone -n -d $ADDR -d www.$ADDR"
       - name: Add certbot renew job
         run: |
-          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "crontab -l | sed '/certbot renew/d' > $CRON_CERT_RENEW_FILE"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "crontab -l | sed -n '/certbot renew/d' > $CRON_CERT_RENEW_FILE"
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo '$CRON_CERT_RENEW_JOB' >> $CRON_CERT_RENEW_FILE"
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "crontab $CRON_CERT_RENEW_FILE"
-          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "rm -f $CRON_CERT_RENEW_FILE"
 
       - name: gen config
         run: |
@@ -67,8 +110,6 @@ jobs:
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo '[bot]' >> $DIRECTORY/jbond.toml"
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo 'token = \"${{ secrets.JBOND_BOT_TOKEN }}\"' >> $DIRECTORY/jbond.toml"
 
-      # - name: set bot token
-      #   run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo ${{ secrets.JBOND_BOT_TOKEN }} > $DIRECTORY/token"
       - name: setup service
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "cp -f $DIRECTORY/misc/jbond.service /usr/lib/systemd/system/"
       - name: enable service
@@ -77,4 +118,6 @@ jobs:
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "cp -f $DIRECTORY/misc/jbond_logrotate /etc/logrotate.d/ && systemctl restart crond"
       - name: cleanup keys
         if: always()
-        run: rm -rf ~/.ssh/id_rsa
+        run: |
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "rm -f $CRON_CERT_RENEW_FILE"
+          rm -f ~/.ssh/id_rsa
