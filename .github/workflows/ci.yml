@@ -14,7 +14,7 @@ jobs:
       ADDR: ${{ secrets.JBOND_SSH_DOMAIN }}
       PORT: 8080
       CRON_CERT_RENEW_JOB: '30 4 * * * /usr/bin/certbot renew --quiet'
-      CRON_CERT_RENEW_FILE: certbot.renew.cron
+      CRON_CERT_RENEW_FILE: ~/certbot.renew.cron
       PG_HBA: /var/lib/pgsql/data/pg_hba.conf
       DB_NAME: jbond_db
       DB_USER: jbond
@@ -66,8 +66,8 @@ jobs:
       - name: Init postgresql cfg
         run: |
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "cp -f $PG_HBA ${PG_HBA}.bkp"
-          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "sed -i -E '/local\s+all/d' $PG_HBA"
-          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "sed -i '/$DB_NAME/d' $PG_HBA"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "sed -n -i -E '/local\s+all/d' $PG_HBA"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "sed -n -i '/$DB_NAME/d' $PG_HBA"
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo "local    all         postgres    trust" >> $PG_HBA"
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo "local    $DB_NAME    $DB_USER    password" >> $PG_HBA"
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo "host     $DB_NAME    $DB_USER    127.0.0.1/32    password" >> $PG_HBA"
@@ -97,7 +97,7 @@ jobs:
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "certbot certonly --standalone -n -d $ADDR -d www.$ADDR"
       - name: Add certbot renew job
         run: |
-          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "crontab -l | sed '/certbot renew/d' > $CRON_CERT_RENEW_FILE"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "crontab -l | sed -n '/certbot renew/d' > $CRON_CERT_RENEW_FILE"
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo "$CRON_CERT_RENEW_JOB" >> $CRON_CERT_RENEW_FILE"
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "crontab $CRON_CERT_RENEW_FILE"
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "rm -f $CRON_CERT_RENEW_FILE"
@@ -119,4 +119,6 @@ jobs:
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "cp -f $DIRECTORY/misc/jbond_logrotate /etc/logrotate.d/ && systemctl restart crond"
       - name: cleanup keys
         if: always()
-        run: rm -rf ~/.ssh/id_rsa
+        run: |
+          rm -f ~/.ssh/id_rsa
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "rm -f $CRON_CERT_RENEW_FILE"
