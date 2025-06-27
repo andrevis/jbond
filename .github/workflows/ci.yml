@@ -77,8 +77,8 @@ jobs:
 
       - name: Create postgresql db
         run: |
-          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "psql -U postgres -c "CREATE USER ${DB_USER} PASSWORD \'${DB_PASS}\';""
-          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "psql -U postgres -c "CREATE DATABASE ${DB_NAME} OWNER=${DB_USER};""
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "psql -U postgres -c \'CREATE USER ${DB_USER} PASSWORD \'${DB_PASS}\';\'"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "psql -U postgres -c \'CREATE DATABASE ${DB_NAME} OWNER=${DB_USER};\'"
 
       - name: open port
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "firewall-cmd --zone=public --add-port=$PORT/tcp --permanent"
