@@ -1,3 +1,22 @@
+
+
+
+// import { parse } from './module.js';
+
+// var config = toml.parse("/opt/jbond/jbond.toml");
+
+// $.get('/config/settings.toml', function (data) {
+//   var config = toml.parse(data);
+//   console.log(config);
+// });
+
+
+// fs.readFile('/config/settings.toml', function (err, data) {
+//     var parsed = toml.parse(data);
+//     console.log(parsed);
+// });
+
+
 let tg = window.Telegram.WebApp;
 
 tg.expand(); // Expand the app to full screen
@@ -57,22 +76,22 @@ noUiSlider.create(durationSlider, {
     connect: true,
     range: {
         'min': 0,
-        'max': 100
+        'max': 120
     }
 });
 
-var duration_from = document.getElementById('duration-from');
-var duration_to = document.getElementById('duration-to');
-var durations = [duration_from, duration_to];
+var durationFrom = document.getElementById('duration-from');
+var durationTo = document.getElementById('duration-to');
+var durations = [durationFrom, durationTo];
 
 durationSlider.noUiSlider.on('update', function (values, handle) {
   durations[handle].value = Math.round(values[handle]);
 });
 
-duration_from.addEventListener('change', function () {
+durationFrom.addEventListener('change', function () {
     durationSlider.noUiSlider.set([null, this.value]);
 });
-duration_to.addEventListener('change', function () {
+durationTo.addEventListener('change', function () {
     durationSlider.noUiSlider.set([null, this.value]);
 });
 
@@ -89,18 +108,18 @@ noUiSlider.create(fullProfitSlider, {
     }
 });
 
-var full_profit_from = document.getElementById('full-profit-from');
-var full_profit_to = document.getElementById('full-profit-to');
-var full_profits = [full_profit_from, full_profit_to];
+var duratfullProfitFrom = document.getElementById('full-profit-from');
+var duratfullProfitTo = document.getElementById('full-profit-to');
+var fullProfits = [duratfullProfitFrom, duratfullProfitTo];
 
 fullProfitSlider.noUiSlider.on('update', function (values, handle) {
-  full_profits[handle].value = Math.round(values[handle]*2)/2;
+  fullProfits[handle].value = Math.round(values[handle]*2)/2;
 });
 
-full_profit_from.addEventListener('change', function () {
+duratfullProfitFrom.addEventListener('change', function () {
   fullProfitSlider.noUiSlider.set([null, this.value]);
 });
-full_profit_to.addEventListener('change', function () {
+duratfullProfitTo.addEventListener('change', function () {
   fullProfitSlider.noUiSlider.set([null, this.value]);
 });
 
@@ -117,18 +136,52 @@ noUiSlider.create(divProfitSlider, {
     }
 });
 
-var div_profit_from = document.getElementById('div-profit-from');
-var div_profit_to = document.getElementById('div-profit-to');
-var div_profits = [div_profit_from, div_profit_to];
+var divProfitFrom = document.getElementById('div-profit-from');
+var divProfitTo = document.getElementById('div-profit-to');
+var divProfits = [divProfitFrom, divProfitTo];
 
 divProfitSlider.noUiSlider.on('update', function (values, handle) {
-  div_profits[handle].value = Math.round(values[handle]*2)/2;
+  divProfits[handle].value = Math.round(values[handle]*2)/2;
 });
 
-div_profit_from.addEventListener('change', function () {
+divProfitFrom.addEventListener('change', function () {
   divProfitSlider.noUiSlider.set([null, this.value]);
 });
 
-div_profit_to.addEventListener('change', function () {
+divProfitTo.addEventListener('change', function () {
   divProfitSlider.noUiSlider.set([null, this.value]);
+});
+
+
+//Слайдер рейтинга
+var ratings = ['BB-','BB','BB+','BBB-','BBB','BBB+','A-','A','A+','AA-','AA','AA+','AAA-','AAA'];
+var ratingFormat = {
+  to: function(value) {
+      return ratings[value];
+  },
+  from: function (value) {
+      return ratings.indexOf(value);
+  }
+};
+
+var ratingSlider = document.getElementById('rating-slider');
+var ratingFrom = document.getElementById('rating-from');
+
+noUiSlider.create(ratingSlider, {
+    start: ['A-'],
+    connect: 'upper',
+    format: ratingFormat,
+    step: 1,
+    range: {
+        'min': 0,
+        'max': ratings.length - 1
+    }
+});
+
+ratingSlider.noUiSlider.on('update', function (value) {
+  ratingFrom.value = value;
+});
+
+ratingFrom.addEventListener('change', function () {
+  ratingSlider.noUiSlider.set([this.value]);
 });

@@ -3,7 +3,6 @@ from logger import *
 from threading import Thread
 import ssl
 import mimetypes
-from config import config
 
 logger = logging.getLogger("Http")
 
@@ -20,7 +19,6 @@ class HTTPRequestHandler(SimpleHTTPRequestHandler):
         else:
             self.send_response(400)
 
-        self.send_header('Host': f'{address}:{port}')
         self.send_header('Content-Length', 0)
         self.send_header('Connection', 'close')
         self.end_headers()
@@ -38,7 +36,6 @@ class HTTPRequestHandler(SimpleHTTPRequestHandler):
             with open(path, 'rb') as file:
                 content = file.read()
                 self.send_response(200)
-                self.send_header('Host': f'{address}:{port}')
                 self.send_header('Content-Type', f'{mime_type}')
                 self.send_header('Content-Length', len(content))
                 self.send_header('Connection', 'close')
@@ -47,7 +44,6 @@ class HTTPRequestHandler(SimpleHTTPRequestHandler):
 
         except:
             self.send_response(404)
-            self.send_header('Host': f'{address}:{port}')
             self.send_header('Content-Length', 0)
             self.send_header('Connection', 'close')
             self.end_headers()

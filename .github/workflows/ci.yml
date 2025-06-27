@@ -15,6 +15,10 @@ jobs:
       PORT: 8080
       CRON_CERT_RENEW_JOB: '30 4 * * * /usr/bin/certbot renew --quiet'
       CRON_CERT_RENEW_FILE: certbot.renew.cron
+      PG_HBA: /var/lib/pgsql/data/pg_hba.conf
+      DB_NAME: jbond_db
+      DB_USER: jbond
+      DB_PASS: jbond
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -33,11 +37,23 @@ jobs:
           python3 -m ensurepip
           python3 -m venv /opt/certbot/
           pip3 install aiogram tomli certbot
-
-      - name: Install some html stuff
+      - name: Install postgresql
         run: |
-          yes | yum install npm
-          npm install nouislider
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "yes | yum install postgresql-server"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "postgresql-setup --initdb --unit postgresql"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "cat $PG_HBA | sed -E 's/^local\s+all\s+postgres.*/# \0/' > $PG_HBA
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo 'local    all    postgres    trust' >> $PG_HBA"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "cat $PG_HBA | sed -E 's/host\s+$DB_NAME\s+$DB_USER.*/# \0/' > $PG_HBA
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo 'host    $DB_NAME    $DB_USER    password' >> $PG_HBA"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "systemctl enable postgresql"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "systemctl start postgresql"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "psql -U postgres -c 'sh $DIRECTORY/db/init.sh $DB_NAME $DB_USER $DB_PASS'"
+
+
+      # - name: Install some html stuff
+      #   run: |
+      #     yes | yum install npm
+      #     npm install toml
 
       - name: install ssh keys
         # check this thread to understand why its needed:
