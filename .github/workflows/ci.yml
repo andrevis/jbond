@@ -9,7 +9,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env: # Or as an environment variable
-      BRANCH: html
+      BRANCH: master
       DIRECTORY: /opt/jbond
       ADDR: ${{ secrets.JBOND_SSH_DOMAIN }}
       PORT: 8080
