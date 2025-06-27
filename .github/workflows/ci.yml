@@ -98,9 +98,8 @@ jobs:
       - name: Add certbot renew job
         run: |
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "crontab -l | sed -n '/certbot renew/d' > $CRON_CERT_RENEW_FILE"
-          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo "$CRON_CERT_RENEW_JOB" >> $CRON_CERT_RENEW_FILE"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo '$CRON_CERT_RENEW_JOB' >> $CRON_CERT_RENEW_FILE"
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "crontab $CRON_CERT_RENEW_FILE"
-          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "rm -f $CRON_CERT_RENEW_FILE"
 
       - name: gen config
         run: |
