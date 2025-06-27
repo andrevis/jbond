@@ -65,7 +65,7 @@ jobs:
 
       - name: Init postgresql cfg
         run: |
-         ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }}  'cp -f "$PG_HBA" "$PG_HBA.bkp"'
+         ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} 'cp -f $PG_HBA $PG_HBA.bkp'
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} 'echo "$(cat $PG_HBA | sed -E "s/^\s*local\s+all\s+postgres.*/# \0/g")" > $PG_HBA'
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} 'echo "$(cat $PG_HBA | sed -E "s/^\s*host\s+$DB_NAME\s+$DB_USER.*/# \0/g")" > $PG_HBA'
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} 'echo "local    all         postgres    trust" >> $PG_HBA'
