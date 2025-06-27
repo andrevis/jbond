@@ -66,7 +66,7 @@ jobs:
       - name: Init postgresql cfg
         run: |
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "cp -f $PG_HBA ${PG_HBA}.bkp"
-          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "sed -iE '/local\s+all/d' $PG_HBA"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "sed -i -E '/local\s+all/d' $PG_HBA"
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "sed -i '/$DB_NAME/d' $PG_HBA"
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo "local    all         postgres    trust" >> $PG_HBA"
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo "host     $DB_NAME    $DB_USER    127.0.0.1/32    password" >> $PG_HBA"
@@ -77,7 +77,7 @@ jobs:
 
       - name: Create postgresql db
         run: |
-          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "psql -U postgres -c "CREATE USER ${DB_USER} PASSWORD '${DB_PASS}';""
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "psql -U postgres -c "CREATE USER ${DB_USER} PASSWORD \'${DB_PASS}\';""
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "psql -U postgres -c "CREATE DATABASE ${DB_NAME} OWNER=${DB_USER};""
 
       - name: open port
