@@ -53,6 +53,7 @@ jobs:
           ssh-keyscan -H ${{ secrets.JBOND_SSH_HOST }} > ~/.ssh/known_hosts
 
       - name: Install postgresql
+        continue-on-error: true
         run: |
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "yes | yum install postgresql-server"
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "postgresql-setup --initdb --unit postgresql"
@@ -64,6 +65,7 @@ jobs:
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "systemctl start postgresql"
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "psql -U postgres -c 'CREATE USER $db_user PASSWORD $db_pass;'"
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "psql -U postgres -c 'CREATE DATABASE $db_user OWNER=$db_user;'"
+
       - name: open port
         run: ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "firewall-cmd --zone=public --add-port=$PORT/tcp --permanent"
       - name: clone repo
