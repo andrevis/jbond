@@ -13,7 +13,7 @@ jobs:
       DIRECTORY: /opt/jbond
       ADDR: ${{ secrets.JBOND_SSH_DOMAIN }}
       PORT: 8080
-      CRON_CERT_RENEW_JOB: '30 4 * * * /usr/bin/certbot renew --quiet'
+      CRON_CERT_RENEW_JOB: "30 4 * * * /usr/bin/certbot renew --quiet"
       CRON_CERT_RENEW_FILE: ~/certbot.renew.cron
       PG_HBA: /var/lib/pgsql/data/pg_hba.conf
       DB_NAME: jbond_db
@@ -120,5 +120,5 @@ jobs:
       - name: cleanup keys
         if: always()
         run: |
-          rm -f ~/.ssh/id_rsa
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "rm -f $CRON_CERT_RENEW_FILE"
+          rm -f ~/.ssh/id_rsa
