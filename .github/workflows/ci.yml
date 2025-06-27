@@ -15,7 +15,7 @@ jobs:
       PORT: 8080
       CRON_CERT_RENEW_JOB: '30 4 * * * /usr/bin/certbot renew --quiet'
       CRON_CERT_RENEW_FILE: certbot.renew.cron
-      PG_HBA: "/var/lib/pgsql/data/pg_hba.conf"
+      PG_HBA: /var/lib/pgsql/data/pg_hba.conf
       DB_NAME: jbond_db
       DB_USER: jbond
       DB_PASS: jbond
