@@ -66,6 +66,7 @@ jobs:
       - name: Init postgresql cfg
         run: |
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "cp -f $PG_HBA ${PG_HBA}.bkp"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "sed -ie '/local\s+all\s+all\s+peer/d' $PG_HBA"
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "sed -i '/$DB_NAME/d' $PG_HBA"
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo "local    $DB_NAME    postgres    trust" >> $PG_HBA"
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo "host     $DB_NAME    $DB_USER    127.0.0.1/32    password" >> $PG_HBA"
