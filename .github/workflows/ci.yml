@@ -69,6 +69,7 @@ jobs:
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "sed -i -E '/local\s+all/d' $PG_HBA"
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "sed -i '/$DB_NAME/d' $PG_HBA"
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo "local    all         postgres    trust" >> $PG_HBA"
+          ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo "local    $DB_NAME    $DB_USER    password" >> $PG_HBA"
           ssh ${{ secrets.JBOND_SSH_USER }}@${{ secrets.JBOND_SSH_HOST }} "echo "host     $DB_NAME    $DB_USER    127.0.0.1/32    password" >> $PG_HBA"
 
       - name: Start postgresql
