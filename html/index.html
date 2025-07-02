@@ -7,7 +7,7 @@
 
         <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-        <script src="toml/toml.js"></script>
+        <!-- <script src="toml/toml.js"></script> -->
         <script src="nouislider/nouislider.js"></script>
 
         <link rel="stylesheet" href="style.css">
@@ -30,31 +30,31 @@
         </div>
 
         <div class="wrapper">
-            <label class=block-name>Доходность к погашению, %</label>
+            <label class=block-name>Доходность (средневз.), %</label>
             <div class="fields">
                 <div class="field field-left">
-                    <input type="number" id="full-profit-from" value="0.0" min="0.0" max="50.0" maxlength="5">
+                    <input type="number" id="profit-from" value="0.0" min="0.0" max="50.0" maxlength="5">
                 </div>
                 <span class="separator">-</span>
                 <div class="field field-right">
-                    <input type="number" id="full-profit-to" value="20.0" min="0.0" max="50.0" maxlength="5">
+                    <input type="number" id="profit-to" value="20.0" min="0.0" max="50.0" maxlength="5">
                 </div>
             </div>
-            <div id="full-profit-slider" class="slider"></div>
+            <div id="profit-slider" class="slider"></div>
         </div>
 
         <div class="wrapper">
             <label class=block-name>Див-доходность к погашению, %</label>
             <div class="fields">
                 <div class="field field-left">
-                    <input type="number" id="div-profit-from" value="0.0" min="0.0" max="50.0" maxlength="5">
+                    <input type="number" id="coupons-from" value="0.0" min="0.0" max="50.0" maxlength="5">
                 </div>
                 <span class="separator">-</span>
                 <div class="field field-right">
-                    <input type="number" id="div-profit-to" value="20.0" min="0.0" max="50.0" maxlength="5">
+                    <input type="number" id="coupons-to" value="20.0" min="0.0" max="50.0" maxlength="5">
                 </div>
             </div>
-            <div id="div-profit-slider" class="slider"></div>
+            <div id="coupons-slider" class="slider"></div>
         </div>
 
         <div class="wrapper">
@@ -68,11 +68,21 @@
         </div>
 
         <div class="wrapper">
-            <div>
-                <input type="checkbox" id="is_qual" name="qualified" value="no"/> <label class="block-name"> Добавить для квалов </label>
+            <div class="coupon-period">
+                <label class="block-name">Купонный период(раз в год)</label>
+                <div>
+                    <input type="checkbox" class="coupon-period-ckeckbox" value="2" checked/><label class="block-name">2</label>
+                    <input type="checkbox" class="coupon-period-ckeckbox" value="4" checked/><label class="block-name">4</label>
+                    <input type="checkbox" class="coupon-period-ckeckbox" value="12" checked/><label class="block-name">12</label>
+                </div>
             </div>
-            <div>
-                <label> <input type="checkbox" id="is_amort" name="amortization" value="yes"/><label class="block-name"> Добавить с амортизацией </label>
+            <div class="selector">
+                <label class="block-name"> Добавить квалов </label>
+                <input type="checkbox" class="field-right" id="is_qual"/>
+            </div>
+            <div class="selector">
+                <label class="block-name"> Добавить с амортизацией </label>
+                <input type="checkbox" class="field-right" id="is_amort"/>
             </div>
         </div>
 
@@ -84,10 +94,12 @@
         </p>
 
         <div><label>Фильтры</label>
-            <textarea id="filters" name="filters" rows="4" cols="200"></textarea>
+            <textarea id="filters" rows="4" cols="100"></textarea>
         </div>
 
-        <!-- <div><label>Фильтры</label> <input id="filters" type="text" value="" length="100" maxlength="1000"></div> -->
+        <div><label>Response</label>
+            <textarea id="data" rows="4" cols="100"></textarea>
+        </div>
 
         <script src="script.js"></script>
     </body>

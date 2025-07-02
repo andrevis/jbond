@@ -17,7 +17,7 @@ async def handle_start(message: Message):
     webAppInfo = WebAppInfo(url = f"https://{address}:{port}")
     builder = ReplyKeyboardBuilder()
     builder.add(KeyboardButton(text = 'Открыть фильтры', web_app = webAppInfo))
-    await message.answer(text = 'Поехали', reply_markup = builder.as_markup())
+    await message.answer(text = f'Поехали', reply_markup = builder.as_markup())
 
 @start_router.message(Command('filters'))
 async def cmd_filters(message: Message):

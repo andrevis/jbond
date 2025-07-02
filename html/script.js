@@ -1,42 +1,28 @@
-
-
-
-// import { parse } from './module.js';
-
-// var config = toml.parse("/opt/jbond/jbond.toml");
-
-// $.get('/config/settings.toml', function (data) {
-//   var config = toml.parse(data);
-//   console.log(config);
-// });
-
-
-// fs.readFile('/config/settings.toml', function (err, data) {
-//     var parsed = toml.parse(data);
-//     console.log(parsed);
-// });
-
-
 let tg = window.Telegram.WebApp;
 
 tg.expand(); // Expand the app to full screen
 tg.ready(); // Notify Telegram that the app is ready
 
-function send_data() {
+function send_filters() {
+
   let filters = {
     is_qual: document.getElementById('is_qual').checked,
     is_amort: document.getElementById('is_amort').checked,
     duration: {
-      // from: parseInt(document.querySelector(".duration .input .field .from").value),
-      // to: parseInt(document.querySelector(".duration .input .field .to").value),
-
-      // from: parseInt(document.getElementById('duration.from').value),
-      // to: parseInt(document.getElementById('duration.to').value),
+      fr: parseInt(document.getElementById('duration-from').value),
+      to: parseInt(document.getElementById('duration-to').value),
     },
-
-    // toString() {
-    //   return `{"is_qual": ${this.is_qual}, "is_amort": ${this.is_amort}}`;
-    // }
+    profit: {
+      fr: parseInt(document.getElementById('profit-from').value),
+      to: parseInt(document.getElementById('profit-to').value),
+    },
+    coupons: {
+      fr: parseInt(document.getElementById('coupons-from').value),
+      to: parseInt(document.getElementById('coupons-to').value),
+    },
+    rating: document.getElementById('rating-from').value,
+    period: Array.from(document.getElementsByClassName("coupon-period-ckeckbox")).map((elem) => parseInt(elem.value)),
+    chat_id: tg.initDataUnsafe.user.id
   };
 
   document.getElementById('filters').value = JSON.stringify(filters);
@@ -45,17 +31,28 @@ function send_data() {
     method: "POST",
     body: JSON.stringify(filters),
     headers: {
-      "Content-type": "application/json; charset=UTF-8"
+      "Content-type": "application/json"
     }
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    document.getElementById('data').value = JSON.stringify(data);
+
+  })
+  .catch(error => {
+    console.error('Error:', error);
   });
-  //.then((response) => response.json());
-  //.then((json) => console.log(json));
 }
 
 // tg.MainButton.setText('Готово');
 // tg.MainButton.show();
 // tg.MainButton.onClick(() => {
-//   send_data();
+//   send_filters();
 //   // tg.sendData(json);
 //   tg.close();
 // });
@@ -63,7 +60,9 @@ function send_data() {
 
 let btn_ok = document.getElementById("btn_ok");
 btn_ok.addEventListener('click', () => {
-  send_data();
+  send_filters();
+  // tg.sendData(tg.initDataUnsafe.user.id.toString());
+
   //tg.close();
 });
 
@@ -97,9 +96,9 @@ durationTo.addEventListener('change', function () {
 
 
 
-// Слайдер полной доходности
-var fullProfitSlider = document.getElementById('full-profit-slider');
-noUiSlider.create(fullProfitSlider, {
+// Слайдер доходности
+var profitSlider = document.getElementById('profit-slider');
+noUiSlider.create(profitSlider, {
     start: [20.0, 50.0],
     connect: true,
     range: {
@@ -108,26 +107,26 @@ noUiSlider.create(fullProfitSlider, {
     }
 });
 
-var duratfullProfitFrom = document.getElementById('full-profit-from');
-var duratfullProfitTo = document.getElementById('full-profit-to');
-var fullProfits = [duratfullProfitFrom, duratfullProfitTo];
+var profitFrom = document.getElementById('profit-from');
+var profitTo = document.getElementById('profit-to');
+var profits = [profitFrom, profitTo];
 
-fullProfitSlider.noUiSlider.on('update', function (values, handle) {
-  fullProfits[handle].value = Math.round(values[handle]*2)/2;
+profitSlider.noUiSlider.on('update', function (values, handle) {
+  profits[handle].value = Math.round(values[handle]*2)/2;
 });
 
-duratfullProfitFrom.addEventListener('change', function () {
-  fullProfitSlider.noUiSlider.set([null, this.value]);
+profitFrom.addEventListener('change', function () {
+  profitSlider.noUiSlider.set([null, this.value]);
 });
-duratfullProfitTo.addEventListener('change', function () {
-  fullProfitSlider.noUiSlider.set([null, this.value]);
+profitTo.addEventListener('change', function () {
+  profitSlider.noUiSlider.set([null, this.value]);
 });
 
 
 
 //Слайдер див доходности
-var divProfitSlider = document.getElementById('div-profit-slider');
-noUiSlider.create(divProfitSlider, {
+var couponsSlider = document.getElementById('coupons-slider');
+noUiSlider.create(couponsSlider, {
     start: [20.0, 50.0],
     connect: true,
     range: {
@@ -136,20 +135,20 @@ noUiSlider.create(divProfitSlider, {
     }
 });
 
-var divProfitFrom = document.getElementById('div-profit-from');
-var divProfitTo = document.getElementById('div-profit-to');
-var divProfits = [divProfitFrom, divProfitTo];
+var couponsFrom = document.getElementById('coupons-from');
+var couponsTo = document.getElementById('coupons-to');
+var coupons = [couponsFrom, couponsTo];
 
-divProfitSlider.noUiSlider.on('update', function (values, handle) {
-  divProfits[handle].value = Math.round(values[handle]*2)/2;
+couponsSlider.noUiSlider.on('update', function (values, handle) {
+  coupons[handle].value = Math.round(values[handle]*2)/2;
 });
 
-divProfitFrom.addEventListener('change', function () {
-  divProfitSlider.noUiSlider.set([null, this.value]);
+couponsFrom.addEventListener('change', function () {
+  couponsSlider.noUiSlider.set([null, this.value]);
 });
 
-divProfitTo.addEventListener('change', function () {
-  divProfitSlider.noUiSlider.set([null, this.value]);
+couponsTo.addEventListener('change', function () {
+  couponsSlider.noUiSlider.set([null, this.value]);
 });
 
 
