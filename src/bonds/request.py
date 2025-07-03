@@ -1,25 +1,26 @@
 # https://iss.moex.com/iss/apps/infogrid/emission/rates.json?
 # lang=ru&
-# iss.meta=on&
-# sort_order=asc&
-# sort_column=SECID&
-# start=0&
-# limit=100&
-# coupon_frequency=12,4
-# columns=SECID,SHORTNAME,ISIN,FACEVALUE,FACEUNIT,MATDATE,COUPONFREQUENCY,COUPONPERCENT,OFFERDATE,DAYSTOREDEMPTION,SECSUBTYPE,YIELDATWAP,COUPONDATE,PRICE_RUB,PRICE,REPLBOND,ISSUEDATE,COUPONLENGTH,TYPENAME,DURATION,IS_QUALIFIED_INVESTORS,INN&
-# coupon_percent=19.96,35&
-# duration=1,1497&
-# sec_type=stock_corporate_bond&
-# currencyid=rub
+# iss.meta=off&
+# sort_order=dsc&
+# sort_column=YIELDATWAP&
+# start=0&limit=100&
+# coupon_frequency=4,12&
+# redemption=60,1080&
+# coupon_percent=20,50&
+# columns=SECID,SHORTNAME,ISIN,FACEVALUE,FACEUNIT,MATDATE,COUPONFREQUENCY,COUPONPERCENT,OFFERDATE,DAYSTOREDEMPTION,SECSUBTYPE,YIELDATWAP,COUPONDATE,PRICE_RUB,PRICE,REPLBOND,ISSUEDATE,COUPONLENGTH,TYPENAME,DURATION,IS_QUALIFIED_INVESTORS&
+# sec_type=stock_corporate_bond,stock_exchange_bond&
+# currencyid=rub&
+# high_risk=0
+
 
 # колонки
 # https://iss.moex.com/iss/apps/infogrid/emission/columns.json?lang=ru&iss.meta=off
-
 
 class BondsRequest:
     __req__ = None
     __columns__ = [
         'SECID',
+        'INITIALFACEVALUE',
         'SHORTNAME',
         'ISIN',
         'FACEVALUE',
@@ -40,7 +41,7 @@ class BondsRequest:
         'TYPENAME',
         'DURATION',
         'IS_QUALIFIED_INVESTORS',
-        'INN'
+        'LISTLEVEL'
     ]
 
     @property
@@ -79,20 +80,41 @@ class BondsRequest:
             self.__req__ += f',{optional}'
         return self
 
+    def amortization(self, include=True):
+        if not include:
+            self.__req__ += f'amortization=0&'
+        return self 
+
+    def qual(self, include=True):
+        if not include:
+            self.__req__ += f'qi=0&'
+        return self 
+
     def coupons(self, fr, to):
         self.__req__ += f'coupon_percent={fr},{to}&'
         return self
 
-    def duration(self, fr, to):
-        self.__req__ += f'duration={fr*30},{to*30}&'
+    def redemption(self, fr, to):
+        self.__req__ += f'redemption={fr*30},{to*30}&'
         return self
 
     def sec_type(self):
-        self.__req__ += f'sec_type=stock_corporate_bond&'
+        self.__req__ += f'sec_type=stock_corporate_bond,stock_exchange_bond&'
         return self
 
     def currencyid(self, value='rub'):
         self.__req__ += f'currencyid={value}&'
+        return self
+
+    def high_risk(self, value=False):
+        if not value:
+            self.__req__ += f'high_risk={0}&'
+        return self
+
+    def listing(self, listname=[1,2,3]): 
+        # 3 excluded
+        val = ','.join(map(str, listname))
+        self.__req__ += f'listname={val}&'
         return self
 
     def __str__(self):

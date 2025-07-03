@@ -8,9 +8,10 @@ function send_filters() {
   let filters = {
     is_qual: document.getElementById('is_qual').checked,
     is_amort: document.getElementById('is_amort').checked,
-    duration: {
-      fr: parseInt(document.getElementById('duration-from').value),
-      to: parseInt(document.getElementById('duration-to').value),
+    is_offer: document.getElementById('is_offer').checked,
+    redemption: {
+      fr: parseInt(document.getElementById('redemption-from').value),
+      to: parseInt(document.getElementById('redemption-to').value),
     },
     profit: {
       fr: parseInt(document.getElementById('profit-from').value),
@@ -20,8 +21,12 @@ function send_filters() {
       fr: parseInt(document.getElementById('coupons-from').value),
       to: parseInt(document.getElementById('coupons-to').value),
     },
+    sort: {
+      order: Array.from(document.getElementsByClassName("order")).filter((elem) => (elem.checked)).map((elem) => (elem.value)).toString(),
+      key: Array.from(document.getElementsByClassName("sort-by")).filter((elem) => (elem.checked)).map((elem) => (elem.value)).toString(),
+    },
     rating: document.getElementById('rating-from').value,
-    period: Array.from(document.getElementsByClassName("coupon-period-ckeckbox")).map((elem) => parseInt(elem.value)),
+    period: Array.from(document.getElementsByClassName("coupon-period-ckeckbox")).filter((elem) => (elem.checked)).map((elem) => parseInt(elem.value)),
     chat_id: tg.initDataUnsafe.user.id
   };
 
@@ -41,8 +46,7 @@ function send_filters() {
     return response.json();
   })
   .then(data => {
-    document.getElementById('data').value = JSON.stringify(data);
-
+    console.log(JSON.stringify(data))
   })
   .catch(error => {
     console.error('Error:', error);
@@ -61,16 +65,13 @@ function send_filters() {
 let btn_ok = document.getElementById("btn_ok");
 btn_ok.addEventListener('click', () => {
   send_filters();
-  // tg.sendData(tg.initDataUnsafe.user.id.toString());
-
-  //tg.close();
+  // tg.close();
 });
 
 
 
-//Слайдер дюрации
-var durationSlider = document.getElementById('duration-slider');
-noUiSlider.create(durationSlider, {
+var redemptionSlider = document.getElementById('redemption-slider');
+noUiSlider.create(redemptionSlider, {
     start: [3, 36],
     connect: true,
     range: {
@@ -79,19 +80,19 @@ noUiSlider.create(durationSlider, {
     }
 });
 
-var durationFrom = document.getElementById('duration-from');
-var durationTo = document.getElementById('duration-to');
-var durations = [durationFrom, durationTo];
+var redemptionFrom = document.getElementById('redemption-from');
+var redemptionTo = document.getElementById('redemption-to');
+var redemptions = [redemptionFrom, redemptionTo];
 
-durationSlider.noUiSlider.on('update', function (values, handle) {
-  durations[handle].value = Math.round(values[handle]);
+redemptionSlider.noUiSlider.on('update', function (values, handle) {
+  redemptions[handle].value = Math.round(values[handle]);
 });
 
-durationFrom.addEventListener('change', function () {
-    durationSlider.noUiSlider.set([null, this.value]);
+redemptionFrom.addEventListener('change', function () {
+    redemptionSlider.noUiSlider.set([null, this.value]);
 });
-durationTo.addEventListener('change', function () {
-    durationSlider.noUiSlider.set([null, this.value]);
+redemptionTo.addEventListener('change', function () {
+    redemptionSlider.noUiSlider.set([null, this.value]);
 });
 
 

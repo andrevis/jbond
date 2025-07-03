@@ -9,7 +9,7 @@ from filters import parse_filters
 from bonds.getter import BondsGetter
 from logger import *
 from bot import *
-
+from messages import *
 
 logger = logging.getLogger("Http")
 
@@ -30,7 +30,7 @@ class HTTPRequestHandler(SimpleHTTPRequestHandler):
 
     def __send_response__(self, code, content_type=None, data=None):
         self.send_response(code)
-        self.send_header('Content-Length', (len(data) if data else 0))
+        self.send_header('Content-Length', int(len(data) if data else 0))
         self.send_header('Connection', 'close')
         if content_type:
             self.send_header('Content-Type', content_type)
@@ -53,7 +53,7 @@ class HTTPRequestHandler(SimpleHTTPRequestHandler):
 
             self.__send_response__(200, 'application/json', bytes(json.dumps(json_bonds, indent=0), 'utf-8'))
 
-            message_pack = MessagePack()
+            message_pack = MessagePack(filters.chat_id)
             for i, paper in enumerate(json_bonds):
                 message_pack.append(SendMessageTask(filters.chat_id, paper))
 

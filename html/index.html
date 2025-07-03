@@ -14,19 +14,18 @@
         <link rel="stylesheet" href="nouislider/nouislider.css">
     </head>
     <body>
-
         <div class="wrapper">
             <label class=block-name>От срока до погашения, мес</label>
             <div class="fields">
                 <div class="field field-left">
-                    <input type="number" id="duration-from" value="3" min="0" max="120" maxlength="3">
+                    <input type="number" id="redemption-from" value="3" min="0" max="120" maxlength="3">
                 </div>
                 <span class="separator">-</span>
                 <div class="field field-right">
-                    <input type="number" id="duration-to" value="36" min="1" max="120" maxlength="3">
+                    <input type="number" id="redemption-to" value="36" min="1" max="120" maxlength="3">
                 </div>
             </div>
-            <div id="duration-slider" class="slider"></div>
+            <div id="redemption-slider" class="slider"></div>
         </div>
 
         <div class="wrapper">
@@ -44,7 +43,7 @@
         </div>
 
         <div class="wrapper">
-            <label class=block-name>Див-доходность к погашению, %</label>
+            <label class=block-name>Купонная дох. к погашению, %</label>
             <div class="fields">
                 <div class="field field-left">
                     <input type="number" id="coupons-from" value="0.0" min="0.0" max="50.0" maxlength="5">
@@ -71,21 +70,46 @@
             <div class="coupon-period">
                 <label class="block-name">Купонный период(раз в год)</label>
                 <div>
-                    <input type="checkbox" class="coupon-period-ckeckbox" value="2" checked/><label class="block-name">2</label>
+                    <input type="checkbox" class="coupon-period-ckeckbox" value="1"/><label class="block-name">1</label>
+                    <input type="checkbox" class="coupon-period-ckeckbox" value="2"/><label class="block-name">2</label>
+                    <input type="checkbox" class="coupon-period-ckeckbox" value="3"/><label class="block-name">3</label>
                     <input type="checkbox" class="coupon-period-ckeckbox" value="4" checked/><label class="block-name">4</label>
                     <input type="checkbox" class="coupon-period-ckeckbox" value="12" checked/><label class="block-name">12</label>
                 </div>
             </div>
             <div class="selector">
-                <label class="block-name"> Добавить квалов </label>
-                <input type="checkbox" class="field-right" id="is_qual"/>
+                <label class="block-name"> Квал </label>
+                <input type="checkbox" class="field-right" id="is_qual" checked/>
             </div>
             <div class="selector">
-                <label class="block-name"> Добавить с амортизацией </label>
-                <input type="checkbox" class="field-right" id="is_amort"/>
+                <label class="block-name"> Амортизация </label>
+                <input type="checkbox" class="field-right" id="is_amort" checked/>
+            </div>
+            <div class="selector">
+                <label class="block-name"> Оферта </label>
+                <input type="checkbox" class="field-right" id="is_offer"/>
             </div>
         </div>
 
+        <div class="wrapper">
+            <label class="block-name">Сортировка</label>
+            <input type="radio" id="order-asc" class="order" name="order" value="asc"/><label for="order-asc" class="order-label">⬇</label>
+            <input type="radio" id="order-dsc" class="order" name="order" value="desc" checked/><label for="order-dsc" class="order-label">⬆</label>
+            <fieldset>
+                <div>
+                    <label class="block-name"> По сроку </label>
+                    <input type="radio" id="sort-redemption" class="sort-by field-right" name="sorting" value="DAYSTOREDEMPTION"  />
+                </div>
+                <div>
+                    <label class="block-name"> По доходности</label>
+                    <input type="radio" id="sort-yeild" class="sort-by field-right"  name="sorting" value="YIELDATWAP" checked/>
+                </div>
+                <div>
+                    <label class="block-name"> По купону</label>
+                    <input type="radio" id="sort-coupon" class="sort-by field-right" name="sorting" value="COUPONPERCENT" />
+                </div>
+            </fieldset>
+        </div>
 
         <p>
             <div style="text-align: center;">
@@ -95,10 +119,6 @@
 
         <div><label>Фильтры</label>
             <textarea id="filters" rows="4" cols="100"></textarea>
-        </div>
-
-        <div><label>Response</label>
-            <textarea id="data" rows="4" cols="100"></textarea>
         </div>
 
         <script src="script.js"></script>
