@@ -10,8 +10,8 @@ function send_filters() {
     is_amort: document.getElementById('is_amort').checked,
     is_offer: document.getElementById('is_offer').checked,
     redemption: {
-      fr: parseInt(document.getElementById('redemption-from').value),
-      to: parseInt(document.getElementById('redemption-to').value),
+      fr: parseInt(document.getElementById('redemption-from').value) * 30,
+      to: parseInt(document.getElementById('redemption-to').value) * 30,
     },
     profit: {
       fr: parseInt(document.getElementById('profit-from').value),
@@ -20,6 +20,10 @@ function send_filters() {
     coupons: {
       fr: parseInt(document.getElementById('coupons-from').value),
       to: parseInt(document.getElementById('coupons-to').value),
+    },
+    duration: {
+      fr: parseInt(document.getElementById('duration-from').value) * 30,
+      to: parseInt(document.getElementById('duration-to').value) * 30,
     },
     sort: {
       order: Array.from(document.getElementsByClassName("order")).filter((elem) => (elem.checked)).map((elem) => (elem.value)).toString(),
@@ -151,6 +155,35 @@ couponsFrom.addEventListener('change', function () {
 couponsTo.addEventListener('change', function () {
   couponsSlider.noUiSlider.set([null, this.value]);
 });
+
+
+//Слайдер дюрации
+var durationSlider = document.getElementById('duration-slider');
+noUiSlider.create(durationSlider, {
+    start: [0, 50],
+    connect: true,
+    range: {
+        'min': 0,
+        'max': 50
+    }
+});
+
+var durationFrom = document.getElementById('duration-from');
+var durationTo = document.getElementById('duration-to');
+var duration = [durationFrom, durationTo];
+
+durationSlider.noUiSlider.on('update', function (values, handle) {
+  duration[handle].value = Math.round(values[handle]*2)/2;
+});
+
+durationFrom.addEventListener('change', function () {
+  durationSlider.noUiSlider.set([null, this.value]);
+});
+
+durationTo.addEventListener('change', function () {
+  durationSlider.noUiSlider.set([null, this.value]);
+});
+
 
 
 //Слайдер рейтинга

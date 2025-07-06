@@ -60,7 +60,7 @@ class BondsRequest:
         self.__req__ += f'iss.meta={val}&'
         return self
 
-    def sort(self, odred = 'dsc', col = 'YIELDATWAP'):
+    def sort(self, odred = 'asc', col = 'YIELDATWAP'):
         self.__req__ += f'sort_order={odred}&sort_column={col}&'
         return self
 
@@ -95,7 +95,7 @@ class BondsRequest:
         return self
 
     def redemption(self, fr, to):
-        self.__req__ += f'redemption={fr*30},{to*30}&'
+        self.__req__ += f'redemption={fr},{to}&'
         return self
 
     def sec_type(self):
@@ -112,7 +112,6 @@ class BondsRequest:
         return self
 
     def listing(self, listname=[1,2,3]): 
-        # 3 excluded
         val = ','.join(map(str, listname))
         self.__req__ += f'listname={val}&'
         return self

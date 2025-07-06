@@ -15,7 +15,7 @@
     </head>
     <body>
         <div class="wrapper">
-            <label class=block-name>От срока до погашения, мес</label>
+            <label class=block-name>Срок до погашения, мес</label>
             <div class="fields">
                 <div class="field field-left">
                     <input type="number" id="redemption-from" value="3" min="0" max="120" maxlength="3">
@@ -57,7 +57,21 @@
         </div>
 
         <div class="wrapper">
-            <label class=block-name>Рейтинг не ниже</label>
+            <label class=block-name>Дюрация, мес</label>
+            <div class="fields">
+                <div class="field field-left">
+                    <input type="number" id="duration-from" value="0" min="0" max="50" maxlength="3">
+                </div>
+                <span class="separator">-</span>
+                <div class="field field-right">
+                    <input type="number" id="duration-to" value="50" min="0" max="50" maxlength="3">
+                </div>
+            </div>
+            <div id="duration-slider" class="slider"></div>
+        </div>
+
+        <div class="wrapper">
+            <label class=block-name>Рейтинг</label>
             <div class="fields">
                 <div class="field field-left">
                     <input type="text" id="rating-from" minlength="1" maxlength="4">
@@ -97,17 +111,22 @@
             <input type="radio" id="order-dsc" class="order" name="order" value="desc" checked/><label for="order-dsc" class="order-label">⬆</label>
             <fieldset>
                 <div>
-                    <label class="block-name"> По сроку </label>
+                    <label class="block-name"> Срок до погашения</label>
                     <input type="radio" id="sort-redemption" class="sort-by field-right" name="sorting" value="DAYSTOREDEMPTION"  />
                 </div>
                 <div>
-                    <label class="block-name"> По доходности</label>
+                    <label class="block-name"> По доходности (срвз)</label>
                     <input type="radio" id="sort-yeild" class="sort-by field-right"  name="sorting" value="YIELDATWAP" checked/>
                 </div>
                 <div>
-                    <label class="block-name"> По купону</label>
+                    <label class="block-name"> По купонной дох.</label>
                     <input type="radio" id="sort-coupon" class="sort-by field-right" name="sorting" value="COUPONPERCENT" />
                 </div>
+                <div>
+                    <label class="block-name"> По дюрации</label>
+                    <input type="radio" id="sort-duration" class="sort-by field-right" name="sorting" value="DURATION" />
+                </div>
+                
             </fieldset>
         </div>
 

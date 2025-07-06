@@ -56,4 +56,4 @@ async def handle_web_app_data(message: Message):
 async def handle_more(callback: CallbackQuery):
     if not pending_messages.empty():
         messages_queue.put(pending_messages.get())
-    await callback.answer('Еще 10 облигаций -->')
+    await callback.answer('Еще 5 облигаций -->')

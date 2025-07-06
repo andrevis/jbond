@@ -39,30 +39,34 @@ class HTTPRequestHandler(SimpleHTTPRequestHandler):
             self.wfile.write(data)
 
     def do_POST(self):
-        logger.info(f'Incoming POST {self.path} from {self.client_address}')
+        try:
+            logger.info(f'Incoming POST {self.path} from {self.client_address}')
 
-        content_length = int(self.headers['Content-Length'])
+            content_length = int(self.headers['Content-Length'])
 
-        if self.path == '/filters' and content_length > 0:
-            filters = parse_filters(self.rfile.read(content_length))
+            if self.path == '/filters' and content_length > 0:
+                filters = parse_filters(self.rfile.read(content_length))
 
-            json_bonds = self.__bonds_getter__.get(filters)
-            if not json_bonds:
-                self.__send_response__(500)
+                json_bonds = self.__bonds_getter__.get(filters)
+                if not json_bonds:
+                    self.__send_response__(500)
+                    return
+
+                self.__send_response__(200, 'application/json', bytes(json.dumps(json_bonds, indent=0), 'utf-8'))
+
+                message_pack = MessagePack(filters.chat_id, filters.sort.key)
+                for paper in json_bonds:
+                    message_pack.append(SendMessageTask(filters.chat_id, paper))
+
+                if len(message_pack) > 0:
+                    messages_queue.put(message_pack)
+
+            else:
+                self.__send_response__(400)
                 return
-
-            self.__send_response__(200, 'application/json', bytes(json.dumps(json_bonds, indent=0), 'utf-8'))
-
-            message_pack = MessagePack(filters.chat_id)
-            for i, paper in enumerate(json_bonds):
-                message_pack.append(SendMessageTask(filters.chat_id, paper))
-
-            if len(message_pack) > 0:
-                messages_queue.put(message_pack)
-
-        else:
-            self.__send_response__(400)
-            return
+        except Exception as e:
+            logger.error(f'POST {self.path} exception: {e}')
+            self.__send_response__(500)
 
 
     def do_GET(self):

@@ -1,10 +1,5 @@
-# DIVIDENTS = 'https://web.moex.com/moex-web-icdb-api/api/v1/export/site-dividend-yields/xlsx'
-
 
 DEFOLTS = 'https://web.moex.com/moex-web-icdb-api/api/v1/export/site-defaults/xlsx'
-
-
-r
 
 
 Погашение и амортизация:
@@ -12,33 +7,3 @@ https://iss.moex.com/iss/statistics/engines/stock/markets/bonds/bondization.json
 
 Оферты
 https://iss.moex.com/iss/statistics/engines/stock/markets/bonds/bondization.json?from=2025-06-19&till=2025-07-05&start=0&limit=100&iss.only=offers,offers.cursor&sort_order=desc&iss.json=extended&iss.meta=off&lang=ru&is_traded=1
-
-Купоны
-https://iss.moex.com/iss/statistics/engines/stock/markets/bonds/bondization.json?from=2025-06-19&till=2025-07-05&start=0&limit=100&iss.only=coupons,coupons.cursor&sort_order=desc&iss.json=extended&iss.meta=off&lang=ru&is_traded=1
-
-облигации
-https://iss.moex.com/iss/apps/infogrid/stock/rates.json?_=1751043561209&lang=ru&iss.meta=off&sort_order=asc&sort_column=SECID&start=0&limit=100&columns=SECID,SHORTNAME,ISIN,FACEVALUE,FACEUNIT,ISSUESIZE,MATDATE,COUPONFREQUENCY,COUPONPERCENT,PRICE,PRICE_RUB&currencyid=rub&faceunit=rub&bg=&sec_type=stock_corporate_bond
-
-
-https://iss.moex.com/iss/engines/stock/markets/index/securities.json?iss.meta=off&iss.json=extended&iss.only=marketdata&marketdata.columns=SECID%2CCURRENTVALUE%2CLASTCHANGEPRC&credentials=credentials&securities=IMOEX%2CRGBITR%2CRUCBTRNS%2CRUMBTRNS%2CRUCBTR3YNS%2CRUCBTR5YNS
-
-Конкретная бумага
-https://iss.moex.com/iss/securities/RU000A0JQAM6.json?iss.json=extended&iss.meta=off
-https://www.moex.com/ru/issue.aspx?code=RU000A0NNE69
-
-ВСе бумаги, но не вся инфа
-https://iss.moex.com/iss/engines/stock/markets/shares/boardgroups/57/securities.json
-
-
-ВСе бумаги с фильтрма
-https://www.moex.com/s2644#/?currencyid%5B%5D='rub'&sec_type%5B%5D='stock_corporate_bond'&duration%5B%5D=1,1497&coupon_percent%5B%5D=19.96,35&columns%5B%5D='SECID','SHORTNAME','ISIN','FACEVALUE','FACEUNIT','ISSUESIZE','MATDATE','COUPONFREQUENCY','COUPONPERCENT','OFFERDATE','DAYSTOREDEMPTION','SECSUBTYPE','EMITENTNAME','YIELDATWAP','COUPONDATE','DISCOUNT3','DISCOUNT2','DISCOUNT1','PRICE_RUB','PRICE','REPLBOND','ISSUEDATE','COUPONLENGTH','COUPONDAYSREMAIN','COUPONDAYSPASSED','TYPENAME','DURATION','IS_QUALIFIED_INVESTORS'
-
-
-api
-https://iss.moex.com/iss/reference/
-
-# https://iss.moex.com/iss/engines/currency/markets/selt/boardgroups/13/securities.json
-# https://iss.moex.com/iss/engines/stock/markets/index/securities.js
-
-
-# инфа https://iss.moex.com/iss/engines/stock/markets/bonds

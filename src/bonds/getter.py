@@ -2,6 +2,7 @@ import requests
 from logger import *
 from bonds.request import BondsRequest
 import json
+from operator import attrgetter
 
 logger = logging.getLogger("Bond")
 
@@ -16,41 +17,38 @@ class BondsGetter:
         offer = paper['OFFERDATE']
         if offer and not filters.is_offer:
             return False
+
+        if paper[filters.sort.key] == 0:
+            return False
+            
         return True
 
-    # def __sort__(self, filters, papers):
-    #     key = filters.sort.key
-    #     reverse = filters.sort.order == "dsc"
-    #     comp = lambda paper: float(0.0 if not paper[key] else paper[key])
-    #     return sorted(papers, key=comp, reverse=reverse)
+    def __sort__(self, key, order, papers):
+        reverse = (order == "desc")
+        logger.info(f'Sorting {order} by {key} - reverse={reverse}')
+        return sorted(papers, key=lambda paper: paper[key], reverse=reverse)
 
-    def __convert__(self, paper):
+    def __convert__(self, filters, paper):
         converted = {}
         for i, column in enumerate(self.__columns__):
             converted[column] = paper[i]
+
+        if not converted[filters.sort.key]:
+            converted[filters.sort.key] = 0
+
         return converted
 
     def __filter__(self, filters, papers):
         filtered = []
         for paper in papers:
-            converted = self.__convert__(paper)
+            converted = self.__convert__(filters, paper)
             if self.__needed__(filters, converted):
                 filtered.append(converted)
         return filtered
 
-    #     "rates.cursor": {
-    #     "columns": [
-    #         "INDEX",
-    #         "TOTAL",
-    #         "PAGESIZE"
-    #     ],
-    #     "data": [
-    #         [
-    #             0,
-    #             214,
-    #             100
-    #         ]
-    #     ]
+    # "rates.cursor": {
+    #     "columns": [ "INDEX", "TOTAL", "PAGESIZE" ],
+    #     "data": [[ 0, 214, 100 ]]
     # }
     def __get_total__(self, json):
         for i, key in enumerate(json["rates.cursor"]["columns"]):
@@ -75,17 +73,15 @@ class BondsGetter:
             logger.info(f'Request: {url}')
 
             response = requests.get(url, timeout=5)
-
             if response.status_code != 200:
                 logger.error(f'Cannot get MOEX request (code={response.status_code}): {response.reason}')
                 return None
 
             json = response.json()
             total = self.__get_total__(json)
-            offset = offset + min(scroll, total-offset)
+            offset += min(scroll, total-offset)
 
             self.__columns__ = json["rates"]["columns"]
             filtered_papers.extend(self.__filter__(filters, json["rates"]["data"]))
 
-        logger.info(f'{filtered_papers}')
-        return filtered_papers
+        return self.__sort__(filters.sort.key, filters.sort.order, filtered_papers)
