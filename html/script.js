@@ -4,7 +4,6 @@ tg.expand(); // Expand the app to full screen
 tg.ready(); // Notify Telegram that the app is ready
 
 function send_filters() {
-
   let filters = {
     is_qual: document.getElementById('is_qual').checked,
     is_amort: document.getElementById('is_amort').checked,
@@ -29,6 +28,7 @@ function send_filters() {
       order: Array.from(document.getElementsByClassName("order")).filter((elem) => (elem.checked)).map((elem) => (elem.value)).toString(),
       key: Array.from(document.getElementsByClassName("sort-by")).filter((elem) => (elem.checked)).map((elem) => (elem.value)).toString(),
     },
+    price:  document.getElementById('price-to').value,
     rating: document.getElementById('rating-from').value,
     period: Array.from(document.getElementsByClassName("coupon-period-ckeckbox")).filter((elem) => (elem.checked)).map((elem) => parseInt(elem.value)),
     chat_id: tg.initDataUnsafe.user.id
@@ -51,170 +51,198 @@ function send_filters() {
   })
   .then(data => {
     console.log(JSON.stringify(data))
+    tg.close();
   })
   .catch(error => {
     console.error('Error:', error);
   });
 }
 
-// tg.MainButton.setText('Готово');
-// tg.MainButton.show();
-// tg.MainButton.onClick(() => {
-//   send_filters();
-//   // tg.sendData(json);
-//   tg.close();
-// });
-
-
 let btn_ok = document.getElementById("btn_ok");
 btn_ok.addEventListener('click', () => {
   send_filters();
-  // tg.close();
 });
 
+{
+  Array.from(document.getElementsByClassName("sort-asc"), (elem, _) => elem.addEventListener('click', function() {
+    document.getElementById("order-asc").checked = true;
+    document.getElementById("order-dsc").checked = false;
+  }));
 
+  Array.from(document.getElementsByClassName("sort-dsc"), (elem, _) => elem.addEventListener('click', function() {
+    document.getElementById("order-asc").checked = false;
+    document.getElementById("order-dsc").checked = true;
+  }));
+}
 
-var redemptionSlider = document.getElementById('redemption-slider');
-noUiSlider.create(redemptionSlider, {
-    start: [3, 36],
-    connect: true,
-    range: {
-        'min': 0,
-        'max': 120
+{
+  var redemptionSlider = document.getElementById('redemption-slider');
+  noUiSlider.create(redemptionSlider, {
+      start: [3, 36],
+      connect: true,
+      range: {
+          'min': 0,
+          'max': 120
+      }
+  });
+
+  var redemptionFrom = document.getElementById('redemption-from');
+  var redemptionTo = document.getElementById('redemption-to');
+  var redemptions = [redemptionFrom, redemptionTo];
+
+  redemptionSlider.noUiSlider.on('update', function (values, handle) {
+    redemptions[handle].value = Math.round(values[handle]);
+  });
+
+  redemptionFrom.addEventListener('change', function () {
+      redemptionSlider.noUiSlider.set([null, this.value]);
+  });
+  redemptionTo.addEventListener('change', function () {
+      redemptionSlider.noUiSlider.set([null, this.value]);
+  });
+}
+
+{
+  // Слайдер доходности
+  var profitSlider = document.getElementById('profit-slider');
+  noUiSlider.create(profitSlider, {
+      start: [20.0, 50.0],
+      connect: true,
+      range: {
+          'min': 0.0,
+          'max': 50.0
+      }
+  });
+
+  var profitFrom = document.getElementById('profit-from');
+  var profitTo = document.getElementById('profit-to');
+  var profits = [profitFrom, profitTo];
+
+  profitSlider.noUiSlider.on('update', function (values, handle) {
+    profits[handle].value = Math.round(values[handle]*2)/2;
+  });
+
+  profitFrom.addEventListener('change', function () {
+    profitSlider.noUiSlider.set([null, this.value]);
+  });
+  profitTo.addEventListener('change', function () {
+    profitSlider.noUiSlider.set([null, this.value]);
+  });
+}
+
+{
+  //Слайдер див доходности
+  var couponsSlider = document.getElementById('coupons-slider');
+  noUiSlider.create(couponsSlider, {
+      start: [20.0, 50.0],
+      connect: true,
+      range: {
+          'min': 0.0,
+          'max': 50.0
+      }
+  });
+
+  var couponsFrom = document.getElementById('coupons-from');
+  var couponsTo = document.getElementById('coupons-to');
+  var coupons = [couponsFrom, couponsTo];
+
+  couponsSlider.noUiSlider.on('update', function (values, handle) {
+    coupons[handle].value = Math.round(values[handle]*2)/2;
+  });
+
+  couponsFrom.addEventListener('change', function () {
+    couponsSlider.noUiSlider.set([null, this.value]);
+  });
+
+  couponsTo.addEventListener('change', function () {
+    couponsSlider.noUiSlider.set([null, this.value]);
+  });
+}
+
+{
+  //Слайдер дюрации
+  var durationSlider = document.getElementById('duration-slider');
+  noUiSlider.create(durationSlider, {
+      start: [0, 50],
+      connect: true,
+      range: {
+          'min': 0,
+          'max': 50
+      }
+  });
+
+  var durationFrom = document.getElementById('duration-from');
+  var durationTo = document.getElementById('duration-to');
+  var duration = [durationFrom, durationTo];
+
+  durationSlider.noUiSlider.on('update', function (values, handle) {
+    duration[handle].value = Math.round(values[handle]*2)/2;
+  });
+
+  durationFrom.addEventListener('change', function () {
+    durationSlider.noUiSlider.set([null, this.value]);
+  });
+
+  durationTo.addEventListener('change', function () {
+    durationSlider.noUiSlider.set([null, this.value]);
+  });
+}
+
+{
+  //Слайдер цены
+  var priceSlider = document.getElementById('price-slider');
+  var price = document.getElementById('price-to');
+
+  noUiSlider.create(priceSlider, {
+      start: [100],
+      connect: 'lower',
+      step: 1,
+      range: {
+          'min': 0,
+          'max': 200
+      }
+  });
+
+  priceSlider.noUiSlider.on('update', function (value) {
+    price.value = Math.round(value*2)/2;;
+  });
+
+  price.addEventListener('change', function () {
+    priceSlider.noUiSlider.set([this.value]);
+  });
+}
+
+{
+  //Слайдер рейтинга
+  var ratings = ['BB-','BB','BB+','BBB-','BBB','BBB+','A-','A','A+','AA-','AA','AA+','AAA-','AAA'];
+  var ratingFormat = {
+    to: function(value) {
+        return ratings[value];
+    },
+    from: function (value) {
+        return ratings.indexOf(value);
     }
-});
+  };
 
-var redemptionFrom = document.getElementById('redemption-from');
-var redemptionTo = document.getElementById('redemption-to');
-var redemptions = [redemptionFrom, redemptionTo];
+  var ratingSlider = document.getElementById('rating-slider');
+  var ratingFrom = document.getElementById('rating-from');
 
-redemptionSlider.noUiSlider.on('update', function (values, handle) {
-  redemptions[handle].value = Math.round(values[handle]);
-});
+  noUiSlider.create(ratingSlider, {
+      start: ['A-'],
+      connect: 'upper',
+      format: ratingFormat,
+      step: 1,
+      range: {
+          'min': 0,
+          'max': ratings.length - 1
+      }
+  });
 
-redemptionFrom.addEventListener('change', function () {
-    redemptionSlider.noUiSlider.set([null, this.value]);
-});
-redemptionTo.addEventListener('change', function () {
-    redemptionSlider.noUiSlider.set([null, this.value]);
-});
+  ratingSlider.noUiSlider.on('update', function (value) {
+    ratingFrom.value = value;
+  });
 
-
-
-// Слайдер доходности
-var profitSlider = document.getElementById('profit-slider');
-noUiSlider.create(profitSlider, {
-    start: [20.0, 50.0],
-    connect: true,
-    range: {
-        'min': 0.0,
-        'max': 50.0
-    }
-});
-
-var profitFrom = document.getElementById('profit-from');
-var profitTo = document.getElementById('profit-to');
-var profits = [profitFrom, profitTo];
-
-profitSlider.noUiSlider.on('update', function (values, handle) {
-  profits[handle].value = Math.round(values[handle]*2)/2;
-});
-
-profitFrom.addEventListener('change', function () {
-  profitSlider.noUiSlider.set([null, this.value]);
-});
-profitTo.addEventListener('change', function () {
-  profitSlider.noUiSlider.set([null, this.value]);
-});
-
-
-
-//Слайдер див доходности
-var couponsSlider = document.getElementById('coupons-slider');
-noUiSlider.create(couponsSlider, {
-    start: [20.0, 50.0],
-    connect: true,
-    range: {
-        'min': 0.0,
-        'max': 50.0
-    }
-});
-
-var couponsFrom = document.getElementById('coupons-from');
-var couponsTo = document.getElementById('coupons-to');
-var coupons = [couponsFrom, couponsTo];
-
-couponsSlider.noUiSlider.on('update', function (values, handle) {
-  coupons[handle].value = Math.round(values[handle]*2)/2;
-});
-
-couponsFrom.addEventListener('change', function () {
-  couponsSlider.noUiSlider.set([null, this.value]);
-});
-
-couponsTo.addEventListener('change', function () {
-  couponsSlider.noUiSlider.set([null, this.value]);
-});
-
-
-//Слайдер дюрации
-var durationSlider = document.getElementById('duration-slider');
-noUiSlider.create(durationSlider, {
-    start: [0, 50],
-    connect: true,
-    range: {
-        'min': 0,
-        'max': 50
-    }
-});
-
-var durationFrom = document.getElementById('duration-from');
-var durationTo = document.getElementById('duration-to');
-var duration = [durationFrom, durationTo];
-
-durationSlider.noUiSlider.on('update', function (values, handle) {
-  duration[handle].value = Math.round(values[handle]*2)/2;
-});
-
-durationFrom.addEventListener('change', function () {
-  durationSlider.noUiSlider.set([null, this.value]);
-});
-
-durationTo.addEventListener('change', function () {
-  durationSlider.noUiSlider.set([null, this.value]);
-});
-
-
-
-//Слайдер рейтинга
-var ratings = ['BB-','BB','BB+','BBB-','BBB','BBB+','A-','A','A+','AA-','AA','AA+','AAA-','AAA'];
-var ratingFormat = {
-  to: function(value) {
-      return ratings[value];
-  },
-  from: function (value) {
-      return ratings.indexOf(value);
-  }
-};
-
-var ratingSlider = document.getElementById('rating-slider');
-var ratingFrom = document.getElementById('rating-from');
-
-noUiSlider.create(ratingSlider, {
-    start: ['A-'],
-    connect: 'upper',
-    format: ratingFormat,
-    step: 1,
-    range: {
-        'min': 0,
-        'max': ratings.length - 1
-    }
-});
-
-ratingSlider.noUiSlider.on('update', function (value) {
-  ratingFrom.value = value;
-});
-
-ratingFrom.addEventListener('change', function () {
-  ratingSlider.noUiSlider.set([this.value]);
-});
+  ratingFrom.addEventListener('change', function () {
+    ratingSlider.noUiSlider.set([this.value]);
+  });
+}

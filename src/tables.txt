@@ -1,9 +1,0 @@
-
-DEFOLTS = 'https://web.moex.com/moex-web-icdb-api/api/v1/export/site-defaults/xlsx'
-
-
-Погашение и амортизация:
-https://iss.moex.com/iss/statistics/engines/stock/markets/bonds/bondization.json?from=2025-06-19&till=2025-07-05&start=0&limit=100&iss.only=amortizations,amortizations.cursor&sort_order=desc&iss.json=extended&iss.meta=off&lang=ru&is_traded=1
-
-Оферты
-https://iss.moex.com/iss/statistics/engines/stock/markets/bonds/bondization.json?from=2025-06-19&till=2025-07-05&start=0&limit=100&iss.only=offers,offers.cursor&sort_order=desc&iss.json=extended&iss.meta=off&lang=ru&is_traded=1

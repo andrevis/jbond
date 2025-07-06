@@ -14,13 +14,15 @@ class BondsGetter:
         return self.__columns__
 
     def __needed__(self, filters, paper):
-        offer = paper['OFFERDATE']
-        if offer and not filters.is_offer:
+        if paper['OFFERDATE'] and not filters.is_offer:
             return False
 
         if paper[filters.sort.key] == 0:
             return False
-            
+
+        if float(paper["PRICE"]) > float(filters.price):
+            return False
+ 
         return True
 
     def __sort__(self, key, order, papers):

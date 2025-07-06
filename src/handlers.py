@@ -12,25 +12,25 @@ base_router = Router()
 
 logger = logging.getLogger("Router")
 
-@base_router.message(CommandStart())
-async def handle_start(message: Message):
-    logger.info(f'Command /start from {message.from_user.full_name}')
-    address = config["server"]["address"]
-    port = config["server"]["port"]
-    webAppInfo = WebAppInfo(url = f"https://{address}:{port}")
-    builder = ReplyKeyboardBuilder()
-    builder.add(KeyboardButton(text = 'Открыть фильтры', web_app = webAppInfo))
-    await message.answer(text = f'Поехали', reply_markup = builder.as_markup())
+# @base_router.message(CommandStart())
+# async def handle_start(message: Message):
+#     logger.info(f'Command /start from {message.from_user.full_name}')
+#     address = config["server"]["address"]
+#     port = config["server"]["port"]
+#     webAppInfo = WebAppInfo(url = f"https://{address}:{port}")
+#     builder = ReplyKeyboardBuilder()
+#     builder.add(KeyboardButton(text = 'Открыть фильтры', web_app = webAppInfo))
+#     await message.answer(text = f'Поехали', reply_markup = builder.as_markup())
 
-@base_router.message(Command('filters'))
-async def cmd_filters(message: Message):
-    logger.info(f'Command /filters from {message.from_user.full_name}')
-    address = config["server"]["address"]
-    port = config["server"]["port"]
-    webAppInfo = WebAppInfo(url = f"https://{address}:{port}")
-    builder = ReplyKeyboardBuilder()
-    builder.add(KeyboardButton(text = 'Открыть фильтры', web_app = webAppInfo))
-    await message.answer(text = 'Хуильтры', reply_markup = builder.as_markup())
+# @base_router.message(Command('filters'))
+# async def cmd_filters(message: Message):
+#     logger.info(f'Command /filters from {message.from_user.full_name}')
+#     address = config["server"]["address"]
+#     port = config["server"]["port"]
+#     webAppInfo = WebAppInfo(url = f"https://{address}:{port}")
+#     builder = ReplyKeyboardBuilder()
+#     builder.add(KeyboardButton(text = 'Открыть фильтры', web_app = webAppInfo))
+#     await message.answer(text = 'Хуильтры', reply_markup = builder.as_markup())
 
 @base_router.message(Command('clear'))
 async def cmd_clear(message: Message):
@@ -46,10 +46,10 @@ async def cmd_clear(message: Message):
             logger.info(f'History has been cleared')
     
 
-@base_router.message(lambda message: message.web_app_data)
-async def handle_web_app_data(message: Message):
-    logger.info(f'{message.web_app_data}')
-    await message.answer(f'{message.web_app_data}')
+# @base_router.message(lambda message: message.web_app_data)
+# async def handle_web_app_data(message: Message):
+#     logger.info(f'{message.web_app_data}')
+#     await message.answer(f'{message.web_app_data}')
 
 
 @base_router.callback_query(F.data == "more")

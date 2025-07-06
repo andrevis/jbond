@@ -6,8 +6,6 @@
         <title>JBond telegram web app</title>
 
         <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-        <!-- <script src="toml/toml.js"></script> -->
         <script src="nouislider/nouislider.js"></script>
 
         <link rel="stylesheet" href="style.css">
@@ -15,12 +13,11 @@
     </head>
     <body>
         <div class="wrapper">
-            <label class=block-name>Срок до погашения, мес</label>
             <div class="fields">
                 <div class="field field-left">
                     <input type="number" id="redemption-from" value="3" min="0" max="120" maxlength="3">
                 </div>
-                <span class="separator">-</span>
+                <span class="separator block-name">Срок, мес</span>
                 <div class="field field-right">
                     <input type="number" id="redemption-to" value="36" min="1" max="120" maxlength="3">
                 </div>
@@ -29,12 +26,11 @@
         </div>
 
         <div class="wrapper">
-            <label class=block-name>Доходность (средневз.), %</label>
             <div class="fields">
                 <div class="field field-left">
                     <input type="number" id="profit-from" value="0.0" min="0.0" max="50.0" maxlength="5">
                 </div>
-                <span class="separator">-</span>
+                <span class="separator block-name">Доходность, %</span>
                 <div class="field field-right">
                     <input type="number" id="profit-to" value="20.0" min="0.0" max="50.0" maxlength="5">
                 </div>
@@ -43,12 +39,11 @@
         </div>
 
         <div class="wrapper">
-            <label class=block-name>Купонная дох. к погашению, %</label>
             <div class="fields">
                 <div class="field field-left">
                     <input type="number" id="coupons-from" value="0.0" min="0.0" max="50.0" maxlength="5">
                 </div>
-                <span class="separator">-</span>
+                <span class="separator block-name">Купон, %</span>
                 <div class="field field-right">
                     <input type="number" id="coupons-to" value="20.0" min="0.0" max="50.0" maxlength="5">
                 </div>
@@ -57,12 +52,11 @@
         </div>
 
         <div class="wrapper">
-            <label class=block-name>Дюрация, мес</label>
             <div class="fields">
                 <div class="field field-left">
                     <input type="number" id="duration-from" value="0" min="0" max="50" maxlength="3">
                 </div>
-                <span class="separator">-</span>
+                <span class="separator block-name">Дюрация, мес</span>
                 <div class="field field-right">
                     <input type="number" id="duration-to" value="50" min="0" max="50" maxlength="3">
                 </div>
@@ -71,12 +65,14 @@
         </div>
 
         <div class="wrapper">
+            <label class=block-name>Цена, %</label>
+                <input type="text" id="price-to" class="field field-right" minlength="1" maxlength="3">
+            <div id="price-slider" class="slider single-slider"></div>
+        </div>
+
+        <div class="wrapper">
             <label class=block-name>Рейтинг</label>
-            <div class="fields">
-                <div class="field field-left">
-                    <input type="text" id="rating-from" minlength="1" maxlength="4">
-                </div>
-            </div>
+                <input type="text" id="rating-from" class="field field-right" minlength="1" maxlength="4">
             <div id="rating-slider" class="slider single-slider"></div>
         </div>
 
@@ -112,19 +108,19 @@
             <fieldset>
                 <div>
                     <label class="block-name"> Срок до погашения</label>
-                    <input type="radio" id="sort-redemption" class="sort-by field-right" name="sorting" value="DAYSTOREDEMPTION"  />
+                    <input type="radio" id="sort-redemption" class="sort-by field-right sort-asc" name="sorting" value="DAYSTOREDEMPTION"  />
                 </div>
                 <div>
                     <label class="block-name"> По доходности (срвз)</label>
-                    <input type="radio" id="sort-yeild" class="sort-by field-right"  name="sorting" value="YIELDATWAP" checked/>
+                    <input type="radio" id="sort-yeild" class="sort-by field-right sort-dsc" name="sorting" value="YIELDATWAP" checked/>
                 </div>
                 <div>
                     <label class="block-name"> По купонной дох.</label>
-                    <input type="radio" id="sort-coupon" class="sort-by field-right" name="sorting" value="COUPONPERCENT" />
+                    <input type="radio" id="sort-coupon" class="sort-by field-right sort-dsc" name="sorting" value="COUPONPERCENT" />
                 </div>
                 <div>
                     <label class="block-name"> По дюрации</label>
-                    <input type="radio" id="sort-duration" class="sort-by field-right" name="sorting" value="DURATION" />
+                    <input type="radio" id="sort-duration" class="sort-by field-right sort-asc" name="sorting" value="DURATION" />
                 </div>
                 
             </fieldset>
@@ -136,7 +132,9 @@
             </div>
         </p>
 
-        <div><label>Фильтры</label>
+        <!-- Debug -->
+        <div style="display: none">
+            <label>Фильтры</label>
             <textarea id="filters" rows="4" cols="100"></textarea>
         </div>
 
