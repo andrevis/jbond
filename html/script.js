@@ -165,6 +165,7 @@ btn_ok.addEventListener('click', () => {
   noUiSlider.create(durationSlider, {
       start: [0, 50],
       connect: true,
+      step: 1,
       range: {
           'min': 0,
           'max': 50
