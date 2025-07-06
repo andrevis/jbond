@@ -41,7 +41,7 @@ class SendMessageTask(object):
         else:
             return ', '.join(defaults)
 
-    async def __call__(self):
+    async def __call__(self, last: bool):
         logger.info(f'Send message to {self.chat_id}')
         try:
             isin            = self.paper["ISIN"]
@@ -70,7 +70,12 @@ class SendMessageTask(object):
 ❌ Дефолты:\t<b>{defaults}</b>
 ⏰ Дюрация:\t<b>{round(duration/30, 1)} мес</b> ({duration} дней)'''
 
-            await bot.send_message(chat_id=self.chat_id, text=text, disable_notification=True, parse_mode=ParseMode.HTML, link_preview_options=LinkPreviewOptions(is_disabled=True))
+            if last:
+                builder = InlineKeyboardBuilder()
+                builder.add(InlineKeyboardButton(text="Показать еще", callback_data="more"))
+                await bot.send_message(chat_id=self.chat_id, text=text, disable_notification=True, parse_mode=ParseMode.HTML, link_preview_options=LinkPreviewOptions(is_disabled=True), reply_markup=builder.as_markup())
+            else:
+                await bot.send_message(chat_id=self.chat_id, text=text, disable_notification=True, parse_mode=ParseMode.HTML, link_preview_options=LinkPreviewOptions(is_disabled=True))
         except Exception as e:
             logger.error(f'Cannot send bot message len={len(text)}: {e}\n{text}')
 
@@ -104,7 +109,7 @@ class MessagePack:
     def __len__(self):
         return len(self.messages)
 
-    async def __pending__(self):
+    def __pending__(self):
         while not pending_messages.empty():
             pending_messages.get()
 
@@ -113,10 +118,6 @@ class MessagePack:
         pending.offset = self.offset + self.shift
         pending_messages.put(pending)
 
-        builder = InlineKeyboardBuilder()
-        builder.add(InlineKeyboardButton(text="Показать еще", callback_data="more"))
-        await bot.send_message(chat_id=self.chat_id, text=f'❗ Показано только {self.shift} из {len(self.messages)} результатов', disable_notification=True, reply_markup=builder.as_markup())
-        
     async def __call__(self):
         formatted_datetime = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
         if self.offset == 0:
@@ -124,6 +125,6 @@ class MessagePack:
 
         for i, job in enumerate(self.messages):
             if i == self.shift:
-                await self.__pending__()
+                self.__pending__()
                 return
-            await job()
+            await job(i == self.shift - 1)
