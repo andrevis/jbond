@@ -62,7 +62,6 @@ button:active {
 
 .separator {
   display: inline-block;
-  margin: 10px;
 }
 
 .field-left {
@@ -76,10 +75,10 @@ button:active {
 }
 
 input[type='number'] {
-    width: 80px;
+    width: 44px;
     padding: 7px;
     text-align: center;
-    border: 1px solid #c8c8c8;
+    border: 0px solid #c8c8c8;
     border-radius: 5px;
     font-size: 18px;
     line-height: 18px;
@@ -87,10 +86,10 @@ input[type='number'] {
 }
 
 input[type='text'] {
-  width: 80px;
+  width: 44px;
   padding: 7px;
   text-align: center;
-  border: 1px solid #c8c8c8;
+  border: 0px solid #c8c8c8;
   border-radius: 5px;
   font-size: 18px;
   line-height: 18px;
@@ -98,18 +97,23 @@ input[type='text'] {
   margin-bottom: 20px;
 }
 
-input[type='checkbox']{
+input[type='checkbox'] {
   transform: scale(2);
   margin: 10px 10px;
+}
+
+input[type='radio'] {
+  transform: scale(1.5);
+  margin: 15px 40px;
+}
+
+.order-label {
+  margin-left: -30px;
 }
 
 .slider {
   height: 10px;
   margin: 10px 0px 0px;
-}
-
-.single-slider {
-  margin-top: 50px
 }
 
 .slider .noUi-connect {

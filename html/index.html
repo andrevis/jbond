@@ -6,76 +6,136 @@
         <title>JBond telegram web app</title>
 
         <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-        <script src="toml/toml.js"></script>
         <script src="nouislider/nouislider.js"></script>
 
         <link rel="stylesheet" href="style.css">
         <link rel="stylesheet" href="nouislider/nouislider.css">
     </head>
     <body>
-
         <div class="wrapper">
-            <label class=block-name>От срока до погашения, мес</label>
             <div class="fields">
                 <div class="field field-left">
-                    <input type="number" id="duration-from" value="3" min="0" max="120" maxlength="3">
+                    <input type="number" id="redemption-from" value="3" min="0" max="120" maxlength="3">
                 </div>
-                <span class="separator">-</span>
+                <span class="separator block-name">Срок, мес</span>
                 <div class="field field-right">
-                    <input type="number" id="duration-to" value="36" min="1" max="120" maxlength="3">
+                    <input type="number" id="redemption-to" value="36" min="1" max="120" maxlength="3">
+                </div>
+            </div>
+            <div id="redemption-slider" class="slider"></div>
+        </div>
+
+        <div class="wrapper">
+            <div class="fields">
+                <div class="field field-left">
+                    <input type="number" id="profit-from" value="0.0" min="0.0" max="50.0" maxlength="5">
+                </div>
+                <span class="separator block-name">Доходность, %</span>
+                <div class="field field-right">
+                    <input type="number" id="profit-to" value="20.0" min="0.0" max="50.0" maxlength="5">
+                </div>
+            </div>
+            <div id="profit-slider" class="slider"></div>
+        </div>
+
+        <div class="wrapper">
+            <div class="fields">
+                <div class="field field-left">
+                    <input type="number" id="coupons-from" value="0.0" min="0.0" max="50.0" maxlength="5">
+                </div>
+                <span class="separator block-name">Купон, %</span>
+                <div class="field field-right">
+                    <input type="number" id="coupons-to" value="20.0" min="0.0" max="50.0" maxlength="5">
+                </div>
+            </div>
+            <div id="coupons-slider" class="slider"></div>
+        </div>
+
+        <div class="wrapper">
+            <div class="fields">
+                <div class="field field-left">
+                    <input type="number" id="duration-from" value="0" min="0" max="50" maxlength="3">
+                </div>
+                <span class="separator block-name">Дюрация, мес</span>
+                <div class="field field-right">
+                    <input type="number" id="duration-to" value="50" min="0" max="50" maxlength="3">
                 </div>
             </div>
             <div id="duration-slider" class="slider"></div>
         </div>
 
         <div class="wrapper">
-            <label class=block-name>Доходность к погашению, %</label>
-            <div class="fields">
-                <div class="field field-left">
-                    <input type="number" id="full-profit-from" value="0.0" min="0.0" max="50.0" maxlength="5">
-                </div>
-                <span class="separator">-</span>
-                <div class="field field-right">
-                    <input type="number" id="full-profit-to" value="20.0" min="0.0" max="50.0" maxlength="5">
-                </div>
-            </div>
-            <div id="full-profit-slider" class="slider"></div>
+            <label class=block-name>Цена, %</label>
+                <input type="text" id="price-to" class="field field-right" minlength="1" maxlength="3">
+            <div id="price-slider" class="slider single-slider"></div>
         </div>
 
         <div class="wrapper">
-            <label class=block-name>Див-доходность к погашению, %</label>
-            <div class="fields">
-                <div class="field field-left">
-                    <input type="number" id="div-profit-from" value="0.0" min="0.0" max="50.0" maxlength="5">
-                </div>
-                <span class="separator">-</span>
-                <div class="field field-right">
-                    <input type="number" id="div-profit-to" value="20.0" min="0.0" max="50.0" maxlength="5">
-                </div>
-            </div>
-            <div id="div-profit-slider" class="slider"></div>
-        </div>
-
-        <div class="wrapper">
-            <label class=block-name>Рейтинг не ниже</label>
-            <div class="fields">
-                <div class="field field-left">
-                    <input type="text" id="rating-from" minlength="1" maxlength="4">
-                </div>
-            </div>
+            <label class=block-name>Рейтинг</label>
+                <input type="text" id="rating-from" class="field field-right" minlength="1" maxlength="4">
             <div id="rating-slider" class="slider single-slider"></div>
         </div>
 
         <div class="wrapper">
-            <div>
-                <input type="checkbox" id="is_qual" name="qualified" value="no"/> <label class="block-name"> Добавить для квалов </label>
+            <div class="coupon-period">
+                <label class="block-name">Купонный период(раз в год)</label>
+                <div>
+                    <input type="checkbox" class="coupon-period-ckeckbox" value="1"         /><label class="block-name">1</label>
+                    <input type="checkbox" class="coupon-period-ckeckbox" value="2"         /><label class="block-name">2</label>
+                    <input type="checkbox" class="coupon-period-ckeckbox" value="3"         /><label class="block-name">3</label>
+                    <input type="checkbox" class="coupon-period-ckeckbox" value="4"  checked/><label class="block-name">4</label>
+                    <input type="checkbox" class="coupon-period-ckeckbox" value="12" checked/><label class="block-name">12</label>
+                </div>
             </div>
-            <div>
-                <label> <input type="checkbox" id="is_amort" name="amortization" value="yes"/><label class="block-name"> Добавить с амортизацией </label>
+            <div class="selector">
+                <label class="block-name"> Квал </label>
+                <input type="checkbox" class="field-right" id="is_qual" checked/>
+            </div>
+            <div class="selector">
+                <label class="block-name"> Амортизация </label>
+                <input type="checkbox" class="field-right" id="is_amort" checked/>
+            </div>
+            <div class="selector">
+                <label class="block-name"> Оферта </label>
+                <input type="checkbox" class="field-right" id="is_offer"/>
             </div>
         </div>
 
+        <div class="wrapper">
+            <label class="block-name">Сортировка</label>
+            <input type="radio" id="order-asc" class="order" name="order" value="asc"/><label for="order-asc" class="order-label">⬇</label>
+            <input type="radio" id="order-dsc" class="order" name="order" value="desc" checked/><label for="order-dsc" class="order-label">⬆</label>
+            <fieldset>
+                <div>
+                    <label class="block-name"> Срок до погашения</label>
+                    <input type="radio" id="sort-redemption" class="sort-by field-right sort-asc" name="sorting" value="DAYSTOREDEMPTION"  />
+                </div>
+                <div>
+                    <label class="block-name"> По доходности (срвз)</label>
+                    <input type="radio" id="sort-yeild" class="sort-by field-right sort-dsc" name="sorting" value="YIELDATWAP" checked/>
+                </div>
+                <div>
+                    <label class="block-name"> По купонной дох.</label>
+                    <input type="radio" id="sort-coupon" class="sort-by field-right sort-dsc" name="sorting" value="COUPONPERCENT" />
+                </div>
+                <div>
+                    <label class="block-name"> По дюрации</label>
+                    <input type="radio" id="sort-duration" class="sort-by field-right sort-asc" name="sorting" value="DURATION" />
+                </div>
+
+            </fieldset>
+        </div>
+
+        <div class="wrapper">
+            <div class="listing">
+                <label class="block-name">Котировальные списки</label>
+                <div>
+                    <input type="checkbox" class="listing-ckeckbox" value="1" checked/><label class="block-name">1</label>
+                    <input type="checkbox" class="listing-ckeckbox" value="2" checked/><label class="block-name">2</label>
+                    <input type="checkbox" class="listing-ckeckbox" value="3"        /><label class="block-name">3</label>
+                </div>
+            </div>
+        </div>
 
         <p>
             <div style="text-align: center;">
@@ -83,11 +143,11 @@
             </div>
         </p>
 
-        <div><label>Фильтры</label>
-            <textarea id="filters" name="filters" rows="4" cols="200"></textarea>
+        <!-- Debug -->
+        <div style="display: none">
+            <label>Фильтры</label>
+            <textarea id="filters" rows="4" cols="100"></textarea>
         </div>
-
-        <!-- <div><label>Фильтры</label> <input id="filters" type="text" value="" length="100" maxlength="1000"></div> -->
 
         <script src="script.js"></script>
     </body>

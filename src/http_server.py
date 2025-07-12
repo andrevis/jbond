@@ -1,27 +1,73 @@
-from http.server import HTTPServer, BaseHTTPRequestHandler, SimpleHTTPRequestHandler
-from logger import *
+from http.server import HTTPServer, SimpleHTTPRequestHandler
 from threading import Thread
 import ssl
 import mimetypes
+import asyncio
+import json
+
+from filters import parse_filters
+from bonds.getter import BondsGetter
+from logger import *
+from bot import *
+from messages import *
 
 logger = logging.getLogger("Http")
 
+
 class HTTPRequestHandler(SimpleHTTPRequestHandler):
-    def do_POST(self):
-        logger.info(f'Incoming POST {self.path} from {self.client_address}')
+    __bonds_getter__ = BondsGetter()
 
-        if self.path == '/filters':
-            file_length = int(self.headers['Content-Length'])
-            filters = self.rfile.read(file_length)
-            logger.info(f'Received filters: {filters}')
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-            self.send_response(200)
-        else:
-            self.send_response(400)
+        # self.send_header('Transfer-Encoding', 'chunked')
+        # for chunk in response.iter_content(chunk_size=1024):
+        #     chunk_header = f'{len(chunk):x}\r\n'.encode('utf-8')
+        #     self.wfile.write(chunk_header)
+        #     self.wfile.write(chunk)
+        #     self.wfile.write(b'\r\n')
+        # self.wfile.write(b'0\r\n\r\n')
 
-        self.send_header('Content-Length', 0)
+    def __send_response__(self, code, content_type=None, data=None):
+        self.send_response(code)
+        self.send_header('Content-Length', int(len(data) if data else 0))
         self.send_header('Connection', 'close')
+        if content_type:
+            self.send_header('Content-Type', content_type)
         self.end_headers()
+        if data:
+            self.wfile.write(data)
+
+    def do_POST(self):
+        try:
+            logger.info(f'Incoming POST {self.path} from {self.client_address}')
+
+            content_length = int(self.headers['Content-Length'])
+
+            if self.path == '/filters' and content_length > 0:
+                filters = parse_filters(self.rfile.read(content_length))
+
+                json_bonds = self.__bonds_getter__.get(filters)
+                if not json_bonds:
+                    self.__send_response__(500)
+                    return
+
+                self.__send_response__(200, 'application/json', bytes(json.dumps(json_bonds, indent=0), 'utf-8'))
+
+                message_pack = MessagePack(filters)
+                for paper in json_bonds:
+                    message_pack.append(SendMessageTask(filters.chat_id, paper))
+
+                if len(message_pack) > 0:
+                    messages_queue.put(message_pack)
+
+            else:
+                self.__send_response__(400)
+                return
+        except Exception as e:
+            logger.error(f'POST {self.path} exception: {e}')
+            self.__send_response__(500)
+
 
     def do_GET(self):
         logger.info(f'Incoming GET {self.path} from {self.client_address}')
@@ -65,6 +111,7 @@ class HttpServer(Thread):
             certfile = '/etc/letsencrypt/live/jbond-app.ru/cert.pem', server_side = True)
 
         logger.info(f'Starting httpd server on port {self.__port__}...')
+        self.start()
 
     def run(self):
         try:

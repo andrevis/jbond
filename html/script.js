@@ -1,42 +1,38 @@
-
-
-
-// import { parse } from './module.js';
-
-// var config = toml.parse("/opt/jbond/jbond.toml");
-
-// $.get('/config/settings.toml', function (data) {
-//   var config = toml.parse(data);
-//   console.log(config);
-// });
-
-
-// fs.readFile('/config/settings.toml', function (err, data) {
-//     var parsed = toml.parse(data);
-//     console.log(parsed);
-// });
-
-
 let tg = window.Telegram.WebApp;
 
 tg.expand(); // Expand the app to full screen
 tg.ready(); // Notify Telegram that the app is ready
 
-function send_data() {
+function send_filters() {
   let filters = {
     is_qual: document.getElementById('is_qual').checked,
     is_amort: document.getElementById('is_amort').checked,
-    duration: {
-      // from: parseInt(document.querySelector(".duration .input .field .from").value),
-      // to: parseInt(document.querySelector(".duration .input .field .to").value),
-
-      // from: parseInt(document.getElementById('duration.from').value),
-      // to: parseInt(document.getElementById('duration.to').value),
+    is_offer: document.getElementById('is_offer').checked,
+    redemption: {
+      fr: parseInt(document.getElementById('redemption-from').value) * 30,
+      to: parseInt(document.getElementById('redemption-to').value) * 30,
     },
-
-    // toString() {
-    //   return `{"is_qual": ${this.is_qual}, "is_amort": ${this.is_amort}}`;
-    // }
+    profit: {
+      fr: parseInt(document.getElementById('profit-from').value),
+      to: parseInt(document.getElementById('profit-to').value),
+    },
+    coupons: {
+      fr: parseInt(document.getElementById('coupons-from').value),
+      to: parseInt(document.getElementById('coupons-to').value),
+    },
+    duration: {
+      fr: parseInt(document.getElementById('duration-from').value) * 30,
+      to: parseInt(document.getElementById('duration-to').value) * 30,
+    },
+    sort: {
+      order: Array.from(document.getElementsByClassName("order")).filter((elem) => (elem.checked)).map((elem) => (elem.value)).toString(),
+      key: Array.from(document.getElementsByClassName("sort-by")).filter((elem) => (elem.checked)).map((elem) => (elem.value)).toString(),
+    },
+    price:  document.getElementById('price-to').value,
+    rating: document.getElementById('rating-from').value,
+    period: Array.from(document.getElementsByClassName("coupon-period-ckeckbox")).filter((elem) => (elem.checked)).map((elem) => parseInt(elem.value)),
+    listing: Array.from(document.getElementsByClassName("listing-ckeckbox")).filter((elem) => (elem.checked)).map((elem) => parseInt(elem.value)),
+    chat_id: tg.initDataUnsafe.user.id
   };
 
   document.getElementById('filters').value = JSON.stringify(filters);
@@ -45,143 +41,210 @@ function send_data() {
     method: "POST",
     body: JSON.stringify(filters),
     headers: {
-      "Content-type": "application/json; charset=UTF-8"
+      "Content-type": "application/json"
     }
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log(JSON.stringify(data))
+    tg.close();
+  })
+  .catch(error => {
+    console.error('Error:', error);
   });
-  //.then((response) => response.json());
-  //.then((json) => console.log(json));
 }
-
-// tg.MainButton.setText('Готово');
-// tg.MainButton.show();
-// tg.MainButton.onClick(() => {
-//   send_data();
-//   // tg.sendData(json);
-//   tg.close();
-// });
-
 
 let btn_ok = document.getElementById("btn_ok");
 btn_ok.addEventListener('click', () => {
-  send_data();
-  //tg.close();
+  send_filters();
 });
 
+{
+  Array.from(document.getElementsByClassName("sort-asc"), (elem, _) => elem.addEventListener('click', function() {
+    document.getElementById("order-asc").checked = true;
+    document.getElementById("order-dsc").checked = false;
+  }));
 
+  Array.from(document.getElementsByClassName("sort-dsc"), (elem, _) => elem.addEventListener('click', function() {
+    document.getElementById("order-asc").checked = false;
+    document.getElementById("order-dsc").checked = true;
+  }));
+}
 
-//Слайдер дюрации
-var durationSlider = document.getElementById('duration-slider');
-noUiSlider.create(durationSlider, {
-    start: [3, 36],
-    connect: true,
-    range: {
-        'min': 0,
-        'max': 120
-    }
-});
+{
+  var redemptionSlider = document.getElementById('redemption-slider');
+  noUiSlider.create(redemptionSlider, {
+      start: [3, 36],
+      connect: true,
+      range: {
+          'min': 0,
+          'max': 120
+      }
+  });
 
-var durationFrom = document.getElementById('duration-from');
-var durationTo = document.getElementById('duration-to');
-var durations = [durationFrom, durationTo];
+  var redemptionFrom = document.getElementById('redemption-from');
+  var redemptionTo = document.getElementById('redemption-to');
+  var redemptions = [redemptionFrom, redemptionTo];
 
-durationSlider.noUiSlider.on('update', function (values, handle) {
-  durations[handle].value = Math.round(values[handle]);
-});
+  redemptionSlider.noUiSlider.on('update', function (values, handle) {
+    redemptions[handle].value = Math.round(values[handle]);
+  });
 
-durationFrom.addEventListener('change', function () {
+  redemptionFrom.addEventListener('change', function () {
+      redemptionSlider.noUiSlider.set([null, this.value]);
+  });
+  redemptionTo.addEventListener('change', function () {
+      redemptionSlider.noUiSlider.set([null, this.value]);
+  });
+}
+
+{
+  // Слайдер доходности
+  var profitSlider = document.getElementById('profit-slider');
+  noUiSlider.create(profitSlider, {
+      start: [20.0, 50.0],
+      connect: true,
+      range: {
+          'min': 0.0,
+          'max': 50.0
+      }
+  });
+
+  var profitFrom = document.getElementById('profit-from');
+  var profitTo = document.getElementById('profit-to');
+  var profits = [profitFrom, profitTo];
+
+  profitSlider.noUiSlider.on('update', function (values, handle) {
+    profits[handle].value = Math.round(values[handle]*2)/2;
+  });
+
+  profitFrom.addEventListener('change', function () {
+    profitSlider.noUiSlider.set([null, this.value]);
+  });
+  profitTo.addEventListener('change', function () {
+    profitSlider.noUiSlider.set([null, this.value]);
+  });
+}
+
+{
+  //Слайдер див доходности
+  var couponsSlider = document.getElementById('coupons-slider');
+  noUiSlider.create(couponsSlider, {
+      start: [20.0, 50.0],
+      connect: true,
+      range: {
+          'min': 0.0,
+          'max': 50.0
+      }
+  });
+
+  var couponsFrom = document.getElementById('coupons-from');
+  var couponsTo = document.getElementById('coupons-to');
+  var coupons = [couponsFrom, couponsTo];
+
+  couponsSlider.noUiSlider.on('update', function (values, handle) {
+    coupons[handle].value = Math.round(values[handle]*2)/2;
+  });
+
+  couponsFrom.addEventListener('change', function () {
+    couponsSlider.noUiSlider.set([null, this.value]);
+  });
+
+  couponsTo.addEventListener('change', function () {
+    couponsSlider.noUiSlider.set([null, this.value]);
+  });
+}
+
+{
+  //Слайдер дюрации
+  var durationSlider = document.getElementById('duration-slider');
+  noUiSlider.create(durationSlider, {
+      start: [0, 50],
+      connect: true,
+      step: 1,
+      range: {
+          'min': 0,
+          'max': 50
+      }
+  });
+
+  var durationFrom = document.getElementById('duration-from');
+  var durationTo = document.getElementById('duration-to');
+  var duration = [durationFrom, durationTo];
+
+  durationSlider.noUiSlider.on('update', function (values, handle) {
+    duration[handle].value = Math.round(values[handle]*2)/2;
+  });
+
+  durationFrom.addEventListener('change', function () {
     durationSlider.noUiSlider.set([null, this.value]);
-});
-durationTo.addEventListener('change', function () {
+  });
+
+  durationTo.addEventListener('change', function () {
     durationSlider.noUiSlider.set([null, this.value]);
-});
+  });
+}
 
+{
+  //Слайдер цены
+  var priceSlider = document.getElementById('price-slider');
+  var price = document.getElementById('price-to');
 
+  noUiSlider.create(priceSlider, {
+      start: [100],
+      connect: 'lower',
+      step: 1,
+      range: {
+          'min': 0,
+          'max': 200
+      }
+  });
 
-// Слайдер полной доходности
-var fullProfitSlider = document.getElementById('full-profit-slider');
-noUiSlider.create(fullProfitSlider, {
-    start: [20.0, 50.0],
-    connect: true,
-    range: {
-        'min': 0.0,
-        'max': 50.0
+  priceSlider.noUiSlider.on('update', function (value) {
+    price.value = Math.round(value*2)/2;;
+  });
+
+  price.addEventListener('change', function () {
+    priceSlider.noUiSlider.set([this.value]);
+  });
+}
+
+{
+  //Слайдер рейтинга
+  var ratings = ['BB-','BB','BB+','BBB-','BBB','BBB+','A-','A','A+','AA-','AA','AA+','AAA-','AAA'];
+  var ratingFormat = {
+    to: function(value) {
+        return ratings[value];
+    },
+    from: function (value) {
+        return ratings.indexOf(value);
     }
-});
+  };
 
-var duratfullProfitFrom = document.getElementById('full-profit-from');
-var duratfullProfitTo = document.getElementById('full-profit-to');
-var fullProfits = [duratfullProfitFrom, duratfullProfitTo];
+  var ratingSlider = document.getElementById('rating-slider');
+  var ratingFrom = document.getElementById('rating-from');
 
-fullProfitSlider.noUiSlider.on('update', function (values, handle) {
-  fullProfits[handle].value = Math.round(values[handle]*2)/2;
-});
+  noUiSlider.create(ratingSlider, {
+      start: ['A-'],
+      connect: 'upper',
+      format: ratingFormat,
+      step: 1,
+      range: {
+          'min': 0,
+          'max': ratings.length - 1
+      }
+  });
 
-duratfullProfitFrom.addEventListener('change', function () {
-  fullProfitSlider.noUiSlider.set([null, this.value]);
-});
-duratfullProfitTo.addEventListener('change', function () {
-  fullProfitSlider.noUiSlider.set([null, this.value]);
-});
+  ratingSlider.noUiSlider.on('update', function (value) {
+    ratingFrom.value = value;
+  });
 
-
-
-//Слайдер див доходности
-var divProfitSlider = document.getElementById('div-profit-slider');
-noUiSlider.create(divProfitSlider, {
-    start: [20.0, 50.0],
-    connect: true,
-    range: {
-        'min': 0.0,
-        'max': 50.0
-    }
-});
-
-var divProfitFrom = document.getElementById('div-profit-from');
-var divProfitTo = document.getElementById('div-profit-to');
-var divProfits = [divProfitFrom, divProfitTo];
-
-divProfitSlider.noUiSlider.on('update', function (values, handle) {
-  divProfits[handle].value = Math.round(values[handle]*2)/2;
-});
-
-divProfitFrom.addEventListener('change', function () {
-  divProfitSlider.noUiSlider.set([null, this.value]);
-});
-
-divProfitTo.addEventListener('change', function () {
-  divProfitSlider.noUiSlider.set([null, this.value]);
-});
-
-
-//Слайдер рейтинга
-var ratings = ['BB-','BB','BB+','BBB-','BBB','BBB+','A-','A','A+','AA-','AA','AA+','AAA-','AAA'];
-var ratingFormat = {
-  to: function(value) {
-      return ratings[value];
-  },
-  from: function (value) {
-      return ratings.indexOf(value);
-  }
-};
-
-var ratingSlider = document.getElementById('rating-slider');
-var ratingFrom = document.getElementById('rating-from');
-
-noUiSlider.create(ratingSlider, {
-    start: ['A-'],
-    connect: 'upper',
-    format: ratingFormat,
-    step: 1,
-    range: {
-        'min': 0,
-        'max': ratings.length - 1
-    }
-});
-
-ratingSlider.noUiSlider.on('update', function (value) {
-  ratingFrom.value = value;
-});
-
-ratingFrom.addEventListener('change', function () {
-  ratingSlider.noUiSlider.set([this.value]);
-});
+  ratingFrom.addEventListener('change', function () {
+    ratingSlider.noUiSlider.set([this.value]);
+  });
+}
