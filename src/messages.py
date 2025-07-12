@@ -11,7 +11,7 @@ from bonds.rating import RatingGetter
 
 logger = logging.getLogger("Messages")
 
-ratings = ['BB-','BB','BB+','BBB-','BBB','BBB+','A-','A','A+','AA-','AA','AA+','AAA-','AAA']
+ratings = ['B-', 'B', 'B+', 'BB-','BB','BB+','BBB-','BBB','BBB+','A-','A','A+','AA-','AA','AA+','AAA-','AAA']
 
 messages_queue = queue.Queue()
 pending_messages = queue.Queue()
@@ -147,7 +147,10 @@ class MessagePack:
                 job = messages[i]
                 job.paper['RATING'] = results[i]
 
-                if ratings.index(job.paper['RATING']) < ratings.index(self.filters.rating):
+                try:
+                    if ratings.index(job.paper['RATING']) < ratings.index(self.filters.rating):
+                        continue
+                except Exception:
                     continue
 
                 done += 1
