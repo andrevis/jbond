@@ -139,7 +139,8 @@ class MessagePack:
             results = await asyncio.gather(*rating_tasks)
 
             for i, result in enumerate(results):
-                total += 1
+                total += 1             
+
                 if result == None:
                     continue
 
@@ -153,7 +154,7 @@ class MessagePack:
                 is_last = (done == self.shift) or (total == len(self.messages))
                 await job(is_last)
 
-
-        self.__pending__()
-        return
+                if is_last:
+                    self.__pending__()
+                    return
 
