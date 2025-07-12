@@ -7,8 +7,11 @@ import asyncio
 from bot import bot
 from logger import *
 from bonds.defaults import DefaultsGetter
+from bonds.rating import RatingGetter
 
 logger = logging.getLogger("Messages")
+
+ratings = ['BB-','BB','BB+','BBB-','BBB','BBB+','A-','A','A+','AA-','AA','AA+','AAA-','AAA']
 
 messages_queue = queue.Queue()
 pending_messages = queue.Queue()
@@ -45,23 +48,27 @@ class SendMessageTask(object):
         logger.info(f'Send message to {self.chat_id}')
         try:
             isin            = self.paper["ISIN"]
-            name            = self.paper["SHORTNAME"]
+            name            = self.paper["NAME"]
+            shortname       = self.paper["SHORTNAME"]
             nominal         = self.get_float("FACEVALUE")
             redemption      = self.get_int("DAYSTOREDEMPTION")
             duration        = self.get_int("DURATION")
             coupon          = self.get_float("COUPONPERCENT")
             yieldatwap      = self.get_float("YIELDATWAP")
             couponlength    = self.get_int("COUPONLENGTH")
-            price_percent   = self.get_float("PRICE")
-            price_rub       = self.get_float("PRICE_RUB")
+            price           = self.get_float("WAPRICE")
             qual            = "да" if self.get_int("IS_QUALIFIED_INVESTORS") == 0 else "нет"
             offer           = self.paper['OFFERDATE'] if self.paper['OFFERDATE'] else "нет"
             defaults        = self.get_defaults(isin)
             matdate         = self.paper["MATDATE"]
+            listlevel       = self.paper['LISTLEVEL']
+            price_rub       = nominal * price / 100.0
+            rating          = self.paper['RATING']
 
-            text = f'''📌 Имя:\t<b>{name}</b>
-🔎 ISIN:\t<b><a href="https://www.moex.com/ru/issue.aspx?code={isin}">{isin}</a></b>
-💲 Цена:\t<b>{price_percent}%</b> ({price_rub}₽ / {nominal}₽)
+            text = f'''📌 <b>{name}</b>
+🔎 ISIN:\t<b><code>{isin}</code>|<a href="https://www.moex.com/ru/issue.aspx?code={isin}">Moex</a>|<a href="https://www.tbank.ru/invest/bonds/{isin}">T-Broker</a></b>
+🆎 Рейтинг:\t<b>{rating}</b>, Листинг: {listlevel}
+💲 Цена:\t<b>{price:.2f}%</b> ({price_rub:.1f}₽ / {nominal}₽)
 📈 Доходность:\t<b>{yieldatwap}%</b>
 📆 Купон:\t<b>{coupon}%</b> (раз в {round(couponlength/30)} мес.)
 ⏳ Погашение:\t<b>{matdate}</b> ({redemption} д.)
@@ -84,10 +91,9 @@ class SendMessageTask(object):
 class MessagePack:
     shift = 5
 
-    def __init__(self, chat_id, sortby):
+    def __init__(self, filters):
+        self.filters = filters
         self.messages = []
-        self.chat_id = chat_id
-        self.sortby = sortby
         self.offset = 0
         self.idx = 0
 
@@ -113,7 +119,7 @@ class MessagePack:
         while not pending_messages.empty():
             pending_messages.get()
 
-        pending = MessagePack(self.chat_id, self.sortby)
+        pending = MessagePack(self.filters)
         pending.messages = self.messages[self.shift:]
         pending.offset = self.offset + self.shift
         pending_messages.put(pending)
@@ -121,10 +127,33 @@ class MessagePack:
     async def __call__(self):
         formatted_datetime = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
         if self.offset == 0:
-            await bot.send_message(chat_id=self.chat_id, text=f'=== {formatted_datetime} ({self.shift} из {len(self.messages)})')
+            await bot.send_message(chat_id= self.filters.chat_id, text=f'=== {formatted_datetime} ({self.shift} из {len(self.messages)})')
 
-        for i, job in enumerate(self.messages):
-            if i == self.shift:
-                self.__pending__()
-                return
-            await job(i == self.shift - 1)
+        done = 0
+        total = 0
+        while done < self.shift and total < len(self.messages):
+            messages = self.messages[total:]
+
+            batch = min(self.shift, len(messages))
+            rating_tasks = [asyncio.to_thread(RatingGetter.get, job.paper['ISIN']) for job in messages[:batch]]
+            results = await asyncio.gather(*rating_tasks)
+
+            for i, result in enumerate(results):
+                total += 1
+                if result == None:
+                    continue
+
+                job = messages[i]
+                job.paper['RATING'] = results[i]
+
+                if ratings.index(job.paper['RATING']) < ratings.index(self.filters.rating):
+                    continue
+
+                done += 1
+                is_last = (done == self.shift) or (total == len(self.messages))
+                await job(is_last)
+
+
+        self.__pending__()
+        return
+

@@ -30,5 +30,5 @@ class DefaultsGetter:
 
         records = excel_data.to_dict(orient='records')
         records = list(filter(lambda record : record['ISIN'] == isin, records))
-        records = list(map(lambda record : record['Плановая дата'], records))
+        records = list(map(lambda record : str(record['Плановая дата']), records))
         return records

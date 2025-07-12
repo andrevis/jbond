@@ -54,7 +54,7 @@ class HTTPRequestHandler(SimpleHTTPRequestHandler):
 
                 self.__send_response__(200, 'application/json', bytes(json.dumps(json_bonds, indent=0), 'utf-8'))
 
-                message_pack = MessagePack(filters.chat_id, filters.sort.key)
+                message_pack = MessagePack(filters)
                 for paper in json_bonds:
                     message_pack.append(SendMessageTask(filters.chat_id, paper))
 

@@ -33,15 +33,16 @@ class BondsRequest:
         'SECSUBTYPE',
         'YIELDATWAP',
         'COUPONDATE',
-        'PRICE_RUB',
-        'PRICE',
+        # 'PRICE_RUB',
+        # 'PRICE',
         'REPLBOND',
         'ISSUEDATE',
         'COUPONLENGTH',
         'TYPENAME',
         'DURATION',
         'IS_QUALIFIED_INVESTORS',
-        'LISTLEVEL'
+        'LISTLEVEL',
+        'WAPRICE'
     ]
 
     @property
@@ -83,12 +84,12 @@ class BondsRequest:
     def amortization(self, include=True):
         if not include:
             self.__req__ += f'amortization=0&'
-        return self 
+        return self
 
     def qual(self, include=True):
         if not include:
             self.__req__ += f'qi=0&'
-        return self 
+        return self
 
     def coupons(self, fr, to):
         self.__req__ += f'coupon_percent={fr},{to}&'
@@ -111,7 +112,7 @@ class BondsRequest:
             self.__req__ += f'high_risk={0}&'
         return self
 
-    def listing(self, listname=[1,2,3]): 
+    def listing(self, listname=[1,2,3]):
         val = ','.join(map(str, listname))
         self.__req__ += f'listname={val}&'
         return self

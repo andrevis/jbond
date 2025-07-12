@@ -31,6 +31,7 @@ function send_filters() {
     price:  document.getElementById('price-to').value,
     rating: document.getElementById('rating-from').value,
     period: Array.from(document.getElementsByClassName("coupon-period-ckeckbox")).filter((elem) => (elem.checked)).map((elem) => parseInt(elem.value)),
+    listing: Array.from(document.getElementsByClassName("listing-ckeckbox")).filter((elem) => (elem.checked)).map((elem) => parseInt(elem.value)),
     chat_id: tg.initDataUnsafe.user.id
   };
 

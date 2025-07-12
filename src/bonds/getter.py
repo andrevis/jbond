@@ -22,7 +22,10 @@ class BondsGetter:
 
         if float(paper["PRICE"]) > float(filters.price):
             return False
- 
+
+        if int(paper['SUSPENSION_LISTING']) == 1:
+            return False
+
         return True
 
     def __sort__(self, key, order, papers):
@@ -71,7 +74,7 @@ class BondsGetter:
             logger.info(f'Scrolling from {offset} to {total} by {scroll}')
 
             # https://iss.moex.com/iss/apps/infogrid/emission/rates.json?lang=ru&iss.meta=off&sort_order=dsc&sort_column=YIELDATWAP&start=0&limit=1000&coupon_frequency=4,12&redemption=60,1080&coupon_percent=20,50&columns=SECID,SHORTNAME,ISIN,FACEVALUE,FACEUNIT,MATDATE,COUPONFREQUENCY,COUPONPERCENT,OFFERDATE,DAYSTOREDEMPTION,SECSUBTYPE,YIELDATWAP,COUPONDATE,PRICE_RUB,PRICE,REPLBOND,ISSUEDATE,COUPONLENGTH,TYPENAME,DURATION,IS_QUALIFIED_INVESTORS&sec_type=stock_corporate_bond,stock_exchange_bond&currencyid=rub&high_risk=0
-            url = str(BondsRequest().lang().meta(False).sort(filters.sort.order, filters.sort.key).scroll(offset, scroll).period(filters.period).redemption(filters.redemption.fr, filters.redemption.to).coupons(filters.coupons.fr, filters.coupons.to).qual(filters.is_qual).amortization(filters.is_amort).columns().sec_type().currencyid().high_risk(False).listing([1,2]))
+            url = str(BondsRequest().lang().meta(False).sort(filters.sort.order, filters.sort.key).scroll(offset, scroll).period(filters.period).redemption(filters.redemption.fr, filters.redemption.to).coupons(filters.coupons.fr, filters.coupons.to).qual(filters.is_qual).amortization(filters.is_amort).columns().sec_type().currencyid().high_risk(False).listing(filters.listing))
             logger.info(f'Request: {url}')
 
             response = requests.get(url, timeout=5)
