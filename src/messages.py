@@ -116,12 +116,8 @@ class MessagePack:
         return len(self.messages)
 
     def __pending__(self):
-        while not pending_messages.empty():
-            pending_messages.get()
-
         pending = MessagePack(self.filters)
-        pending.messages = self.messages[self.shift:]
-        pending.offset = self.offset + self.shift
+        pending.messages = self.messages[self.offset:]
         pending_messages.put(pending)
 
     async def __call__(self):
@@ -130,16 +126,15 @@ class MessagePack:
             await bot.send_message(chat_id= self.filters.chat_id, text=f'=== {formatted_datetime} ({self.shift} из {len(self.messages)})')
 
         done = 0
-        total = 0
-        while done < self.shift and total < len(self.messages):
-            messages = self.messages[total:]
+        while done < self.shift and self.offset < len(self.messages):
+            messages = self.messages[self.offset:]
 
             batch = min(self.shift, len(messages))
             rating_tasks = [asyncio.to_thread(RatingGetter.get, job.paper['ISIN']) for job in messages[:batch]]
             results = await asyncio.gather(*rating_tasks)
 
             for i, result in enumerate(results):
-                total += 1             
+                self.offset += 1             
 
                 if result == None:
                     continue
@@ -154,7 +149,7 @@ class MessagePack:
                     continue
 
                 done += 1
-                is_last = (done == self.shift) or (total == len(self.messages))
+                is_last = (done == self.shift) or (self.offset == len(self.messages))
                 await job(is_last)
 
                 if is_last:
