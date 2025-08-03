@@ -7,6 +7,7 @@ from config import config
 from bot import bot
 from logger import *
 from messages import *
+import os
 
 base_router = Router()
 
@@ -45,7 +46,12 @@ async def cmd_clear(message: Message):
         if ex.message == "Bad Request: message to delete not found":
             logger.info(f'History has been cleared')
     
-
+@base_router.message(Command('restart'))
+async def cmd_restart(message: Message):
+    # Если все плохо
+    logger.info(f'Command /restart from {message.from_user.full_name}')
+    os.system('systemctl restart jbond.service')
+    
 # @base_router.message(lambda message: message.web_app_data)
 # async def handle_web_app_data(message: Message):
 #     logger.info(f'{message.web_app_data}')

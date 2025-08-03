@@ -1,4 +1,3 @@
-
 import asyncio
 from logger import *
 from config import config
@@ -14,24 +13,28 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 logger = logging.getLogger("Main")
 
 async def main():
-    try:
-        httpd = HttpServer(port = config["server"]["port"])
+    while True:
+        try:
+            httpd = HttpServer(port = config["server"]["port"])
 
-        scheduler = AsyncIOScheduler(timezone='Europe/Moscow')
-        scheduler.add_job(send_message_pack, 'interval', seconds=3)
-        scheduler.start()
+            scheduler = AsyncIOScheduler(timezone='Europe/Moscow')
+            scheduler.add_job(send_message_pack, 'interval', seconds=3)
+            scheduler.start()
 
-        dispatcher = Dispatcher(storage = MemoryStorage())
-        dispatcher.include_router(base_router)
+            dispatcher = Dispatcher(storage = MemoryStorage())
+            dispatcher.include_router(base_router)
 
-        await bot.delete_webhook(drop_pending_updates = True, request_timeout = 10)
-        await dispatcher.start_polling(bot)
+            await bot.delete_webhook(drop_pending_updates = True, request_timeout = 10)
+            await dispatcher.start_polling(bot)
 
-    except Exception as e:
-        logging.error(e, exc_info=True)
-    finally:
-        httpd.join()
-        pass
+        except Exception as e:
+            logging.error(f'Main: {e}', exc_info=True)
+            
+        finally:
+            httpd.join()
+    
+            if not need_running:
+                logger.info(f'Stop signal received. Exiting')
 
 if __name__ == "__main__":
     asyncio.run(main(), debug=True)
