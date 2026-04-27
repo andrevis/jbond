@@ -24,8 +24,12 @@ async def main():
             dispatcher = Dispatcher(storage = MemoryStorage())
             dispatcher.include_router(base_router)
 
-            await bot.delete_webhook(drop_pending_updates = True, request_timeout = 10)
-            await dispatcher.start_polling(bot)
+            try:
+                await bot.delete_webhook(drop_pending_updates = True, request_timeout = 10)
+            except Exception as e:
+                logging.error(f'Error on deleting webhook: {e}')
+            finally:    
+                await dispatcher.start_polling(bot)
 
         except Exception as e:
             logging.error(f'Main: {e}', exc_info=True)
